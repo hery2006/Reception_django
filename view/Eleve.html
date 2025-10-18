@@ -1,0 +1,383 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Élèves</title>
+    <style>
+        /* ------------------------
+            RESET & BASE
+        ------------------------ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7fb;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* ------------------------
+            MESSAGES
+        ------------------------ */
+        .messages {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .message {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 6px solid #28a745;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 6px solid #dc3545;
+        }
+
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left: 6px solid #17a2b8;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ------------------------
+            SECTION AJOUT ÉLÈVE
+        ------------------------ */
+        .eleve_ajout {
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .eleve_ajout h1 {
+            color: #d2691e;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        form input[type="text"],
+        form select,
+        form input[type="file"] {
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        form input:focus,
+        form select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+        }
+
+        form button {
+            background: #007bff;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            grid-column: 1 / -1;
+            font-size: 1rem;
+        }
+
+        form button:hover {
+            background: #0056b3;
+        }
+
+        /* ------------------------
+            TABLEAU LISTE ÉLÈVES
+        ------------------------ */
+        .table_eleve {
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table_eleve h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+        }
+
+        .listage_eleve table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .listage_eleve th {
+            background: #007bff;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .listage_eleve td {
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .listage_eleve tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .listage_eleve tr:hover {
+            background-color: #e9f5ff;
+        }
+
+        .listage_eleve button {
+            background: #dc3545;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .listage_eleve button:hover {
+            background: #b52a37;
+        }
+
+        .listage_eleve a:nth-child(2) button {
+            background: #17a2b8;
+        }
+
+        .listage_eleve a:nth-child(2) button:hover {
+            background: #10707f;
+        }
+
+        td[colspan="7"] {
+            color: #999;
+            font-style: italic;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <section class="eleve_ajout">
+        <h1>Ajout d’un élève</h1>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form action="{% url 'Ajout_html' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div>
+                <label for="Nom">Nom :</label>
+                <input type="text" placeholder="Nom" name="Nom" id="Nom" required>
+            </div>
+
+            <div>
+                <label for="Prenom">Prénom :</label>
+                <input type="text" placeholder="Prénom" name="Prenom" id="Prenom" required>
+            </div>
+
+            <div>
+                <label for="Formation">Formation :</label>
+                <select name="Formations" id="Formation" required> 
+                    <option value="">-- Choisir une formation --</option>
+                    {% for f in Formations %}
+                        <option value="{{ f.id }}">{{ f.Nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="Droit">Droit :</label>
+                <select name="Droit" id="Droit">
+                    <option value="True">Payer</option>
+                    <option value="False">Pas encore payer</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="Dossier">Dossier :</label>
+                <select name="Dossier" id="Dossier">
+                    <option value="True">Complet</option>
+                    <option value="False">Pas encore complet</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="Niveau">Niveau :</label>
+                <select name="Niveau" id="Niveau"> 
+                    <option value="">-- Choisir un niveau --</option> 
+                </select>
+            </div>
+
+            <div>
+                <label for="photo">Photo ou document :</label>
+                <input type="file" name="photo" id="photo" accept="image/*,application/pdf">
+            </div>
+
+            <button type="submit">Ajouter</button>
+        </form>
+    </section>
+
+    <section class="table_eleve">
+        <h1>Liste des élèves actuels</h1>
+        <div class="listage_eleve">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Droit</th>
+                        <th>Dossier</th>
+                        <th>Status</th>
+                        <th>Formation</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if Eleve %}
+                        {% for value in Eleve %}
+                            <tr>
+                                <td data-label="Nom">{{ value.Nom }}</td>
+                                <td data-label="Prénom">{{ value.Prenom }}</td>
+                                <td data-label="Droit">{{ value.Droit|yesno:"Payer,Non payer" }}</td>
+                                <td data-label="Dossier">{{ value.Dossier|yesno:"Complet,Pas encore complet" }}</td>
+                                <td {% if value.Status == True %}
+                                    style="background-color: #00ff3c;"
+                                    {% else %}
+                                    style="background-color: #ff3300;"
+                                    {% endif %}> 
+                                    {% if value.Status == True %}
+                                    Actif
+                                    {% else %}
+                                    Plus Actif
+                                    {% endif %} 
+                                </td>
+                                <td data-label="Formation"> 
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th> Types de Formations</th>
+                                                <th> Niveau </th>
+                                                <th> Action </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                {% with  valeur_Data=request.session.avoir_le_bon_formations|get_value:value.id  %}
+                                                    {% for nom,data_take in valeur_Data.items %}
+                                                        <tr>
+                                                            <td>{{nom}}</td>
+                                                            <td>{{data_take.Niveau}}</td>
+                                                            <td>
+                                                                <a href="{% url 'See_eleve_urls' value.id data_take.id_formations %}">
+                                                                <button>Voir</button>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endwith %}
+                                            </tbody>
+                                        </table>
+                                </td>
+                                <td data-label="Actions">
+                                    <a href="{% url 'Delete_eleve' value.id %}">
+                                        <button>Supprimer</button>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7">Liste vide pour le moment</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script>
+        const niveauxParFormation = {
+            {% for f in Formations %}
+                "{{ f.id }}": [
+                    {% for n in f.niveau_par_formations_set.all %}
+                        {"id": "{{ n.id }}", "nom": "{{ n.Niveaux }}"}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        const selectFormation = document.getElementById('Formation');
+        const selectNiveau = document.getElementById('Niveau');
+
+        selectFormation.addEventListener('change', function() {
+            const formationId = this.value;
+            const niveaux = niveauxParFormation[formationId] || [];
+            selectNiveau.innerHTML = '<option value="">-- Choisir un niveau --</option>';
+            niveaux.forEach(n => {
+                const option = document.createElement('option');
+                option.value = n.nom;
+                option.textContent = n.nom;
+                selectNiveau.appendChild(option);
+            });
+        });
+    </script>
+</body>
+</html>

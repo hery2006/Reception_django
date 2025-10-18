@@ -1,0 +1,149 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href=" {% static 'style.css'%} ">
+    <style>
+        .Emplois_du_temps{
+            width: 85%;
+            height: 100vh;
+            margin-left: 15%;
+        }
+        .table_template_emplois_du_temps{
+            border-collapse: collapse;
+            width: 80%;
+        }
+        .table_template_emplois_du_temps td,.table_template_emplois_du_temps th{
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+{% block contenue %}
+    <main>
+        <section class="bar_status">
+            <div class="title_class">
+                <!-- <div class="line_title"></div> -->
+                <div class="text_title">
+                    <h1 class="TalentForge">TalentForge</h1>
+                    <h3 class="institus"> institute</h3>
+                </div>
+            </div>
+            <lu class="liste_option">
+                <li class="options">Accueil </li>
+                <li class="options">Formations </li>
+                <li class="options">Emplois de temps </li>
+                <li class="options">Professeur </li>
+                <li class="options">Ecolage </li>
+            </lu>
+        </section>
+        <section class="page_principales">
+            <div class="accueil_page">
+                <div class="title_accuiel">
+                    <h1>Bienvenus</h1>
+                </div>
+                <div class="informations_global">
+                    <div class="nombre_eleve">
+                        <img src="" alt="" style="width: 100%;height: 55%;">
+                        <h2 style="width: 100%;min-height: max-content;text-align: center;color: rgb(255, 166, 0);"> Liste des eleves</h2>
+                        <h4 style="margin-top: 15px;width: 80%;margin-left: 10%;">Le nombre d'eleve a augmater de 5% par rapport au mois dernier</h4>
+                        <a href="{% url 'Eleve_page' %}" style="width: 100%;min-height: max-content;display: flex;align-items: center;justify-content: center;margin-top: 15px;">
+                            <button style="width: 25%;height: 40px;font-size: medium;background-color: blue;border-radius: 8px;">Voir</button>
+                        </a>
+                    </div>
+                    <div class="nbr_formtions">
+                        <img src="" alt="" style="width: 100%;height: 55%;">
+                        <h2 style="width: 100%;min-height: max-content;text-align: center;color: rgb(255, 166, 0);"> Tous les Formations</h2>
+                        <h4 style="margin-top: 15px;width: 80%;margin-left: 10%;"> Tous les formations sont occupee</h4>
+                        <a href="{% url 'Formations' %}" style="width: 100%;min-height: max-content;display: flex;align-items: center;justify-content: center;margin-top: 15px;">
+                            <button style="width: 25%;height: 40px;font-size: medium;background-color: blue;border-radius: 8px;">Voir</button>
+                        </a>
+                    </div>
+                    <div class="nbr_professeur">
+                        <img src="" alt="" style="width: 100%;height: 55%;">
+                        <h2 style="width: 100%;min-height: max-content;text-align: center;color: rgb(255, 166, 0);"> Liste des Professeurs</h2>
+                        <h4 style="margin-top: 15px;width: 80%;margin-left: 10%;">Le nombre d'heure des professeurs en augmater de 6%</h4>
+                        <a href="" style="width: 100%;min-height: max-content;display: flex;align-items: center;justify-content: center;margin-top: 15px;">
+                            <button style="width: 25%;height: 40px;font-size: medium;background-color: blue;border-radius: 8px;">Voir</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="Formations_page">
+            
+        </section>
+        <section class="Emplois_du_temps">
+            <h1>Emplois du temps</h1>
+                {% if messages %}
+                    {% for valide in messages %}
+                        <h1>{{valide}}</h1>
+                    {% endfor %}
+                {% endif %}
+            <table class="table_template_emplois_du_temps">
+                <thead>
+                    <tr>
+                        <th>Heure</th>
+                        <th>Lundi</th>
+                        <th>Mardi</th>
+                        <th>Mercredi</th>
+                        <th>Jeudi</th>
+                        <th>Vendredi</th>
+                        <th>Samedi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for heure in disponibiliter %}
+                        <tr>
+                            <td>{{ heure.Heure }}</td>
+                            {% for jour, data in emplois.items %}
+                                {% if data|get_value:heure.Heure == "Libre" %}
+                                    <td>Libre</td>
+                                {% else %}
+                                    {% with info=data|get_value:heure.Heure %}
+                                        <td>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        {% for Formations_t ,value_for in request.session.formations_table.items %}
+                                                            <th>{{Formations_t}}</th>
+                                                        {% endfor %}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        {% for Formations_t ,value_for in request.session.formations_table.items %}
+                                                            <td>
+                                                                {% for boucle in info %}
+                                                                    {% with valeur_info=boucle|get_value:Formations_t %}
+                                                                        {% if valeur_info %}
+                                                                            <h4> nombre d'eleve {{ boucle.nombre }}</h4>
+                                                                            <a href="{% url 'V_E_d_t' boucle.id heure.Heure %}">
+                                                                                <button>Voir</button>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endwith %}
+                                                                {% endfor %}
+                                                            </td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </section>
+    </main>
+{% endblock contenue %}    
+</body>
+</html>

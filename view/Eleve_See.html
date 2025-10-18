@@ -1,0 +1,223 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modification élève</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        form div {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+        select, input[type="text"], input[type="file"] {
+            padding: 5px;
+            min-width: 200px;
+        }
+        th,td{
+            border: 1px solid black;
+        }
+        .main_section{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <section class="main_section">
+        <div class="modif_info">
+        {% if messages %}
+            {% for mess in messages %}
+                {{ mess }}
+            {% endfor %}
+        {% endif %}
+            <h3> Informations sur l'eleve selectionnee </h3>
+            <form action="{% url 'update_eleve_value' request.session.user_take_eleve.Eleve.id %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <label for="Nom">Nom :</label>
+                    <input type="text" placeholder="Nom" name="Nom" id="Nom" required 
+                           value="{{ request.session.user_take_eleve.Eleve.nom }}">
+                </div>
+
+                <div>
+                    <label for="Prenom">Prénom :</label>
+                    <input type="text" placeholder="Prénom" name="Prenom" id="Prenom" required 
+                           value="{{ request.session.user_take_eleve.Eleve.Prenom }}">
+                </div>
+                <div>
+                    <label for="Activision">Status de l'eleve :</label>
+                    <select name="Activision" id="Activision">
+                        <option value="True">
+                            Actif
+                        </option>
+                        <option value="False">
+                            Plus Actif
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="Formation">Formation :</label>
+                    <select name="Formations" id="Formation" required>
+                        <option value="">-- Choisir une formation --</option>
+                        {% for f in Formations %}
+                            <option value="{{ f.id }}"
+                                {% if request.session.user_take_eleve.Eleve.formations_id == f.id %}
+                                    selected
+                                {% endif %}
+                            >{{ f.Nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="Niveau">Niveau :</label>
+                    <select name="Niveau" id="Niveau">
+                        <option value="">-- Choisir un niveau --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="Droit">Droit :</label>
+                    <select name="Droit" id="Droit">
+                        <option value="True">
+                            Payer
+                        </option>
+                        <option value="False">
+                            Pas encore payer
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="Dossier">Dossier :</label>
+                    <select name="Dossier" id="Dossier">
+                        <option value="True">
+                            Complet
+                        </option>
+                        <option value="False">
+                            Pas encore complet
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="photo">Photo ou document :</label>
+                    <input type="file" name="photo" id="photo" accept="image/*,application/pdf">
+                </div>
+
+                <button type="submit">Modifier</button>
+            </form>
+        </div>
+        <div class="Emplois_du_temps">
+            <table>
+                <thead>
+                    <th> Nom et prenom</th>
+                    <th> Niveau </th>
+                    <th colspan="3"> Emplois du temps </th>
+                </thead>
+                <tbody>
+                    {% for name,data  in request.session.personnel_emplois_du_temps.items %}
+                    <tr>
+                        <td> {{ request.session.user_take_eleve.Eleve.nom }} {{ request.session.user_take_eleve.Eleve.Prenom }}</td>
+                        <td>{{ name }}</td>
+                        {% for jours,data2 in data.items %}
+                        <td>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th> Jours </th>
+                                        <th> Heure </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ jours }}</td>
+                                        <td>{{ data2.heure }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h1>Ecolage pour eleve</h1>
+            <form action="" method="post" enctype="multipart/form-data">
+                {% for value in Payement %}
+                    <div>
+                        <label for="">{{ value.Nom }}</label>
+                        <h3></h3>
+                        <input type="number" name="ecolage_value" value="{{value.Ecolage_payer}}">
+                        <select name="Validations_{{value.id}}" id="Validations_{{value.id}}">
+                            <option value="False">Non Payer</option>
+                            <option value="{{ value.id }}">Payer</option>
+                        </select>
+                    </div>
+                {% endfor %}
+            <button type="submit"> Validations </button>
+        </form>
+        </div>
+    </section>
+
+    <script>
+        // === Structure des niveaux par formation ===
+        const niveauxParFormation = {
+            {% for f in Formations %}
+                "{{ f.id }}": [
+                    {% for n in f.niveau_par_formations_set.all %}
+                        {"id": "{{ n.id }}", "nom": "{{ n.Niveaux }}"}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        const selectFormation = document.getElementById('Formation');
+        const selectNiveau = document.getElementById('Niveau');
+
+        // Fonction pour charger les niveaux d'une formation donnée
+        function chargerNiveaux(formationId, niveauActuel = "") {
+            const niveaux = niveauxParFormation[formationId] || [];
+            selectNiveau.innerHTML = '<option value="">-- Choisir un niveau --</option>';
+            niveaux.forEach(n => {
+                const option = document.createElement('option');
+                option.value = n.nom;
+                option.textContent = n.nom;
+                if (n.nom === niveauActuel) {
+                    option.selected = true;
+                }
+                selectNiveau.appendChild(option);
+            });
+        }
+
+        // Lorsqu’on change la formation
+        selectFormation.addEventListener('change', function() {
+            chargerNiveaux(this.value);
+        });
+
+        // Initialisation automatique au chargement de la page
+        const formationIdActuelle = selectFormation.value;
+        const niveauActuel = "{{ request.session.user_take_eleve.Eleve.Niveau|default:'' }}";
+        if (formationIdActuelle) {
+            chargerNiveaux(formationIdActuelle, niveauActuel);
+        }
+        const SelectDroit = document.getElementById('Droit')
+        SelectDroit.value = "{{ request.session.user_take_eleve.Eleve.Droit }}"
+        const SelectDossier = document.getElementById('Dossier')
+        SelectDossier.value = '{{ request.session.user_take_eleve.Eleve.Dossier }}'
+        const SelectStatus = document.getElementById('Activision')
+        SelectStatus.value = '{{ request.session.user_take_eleve.Eleve.Activision}}'
+    </script>
+</body>
+</html>

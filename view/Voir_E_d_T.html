@@ -1,0 +1,118 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background-color: #f8f9fa;
+            margin: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        thead tr:first-child th {
+            background-color: #007bff;
+            color: white;
+            font-size: 1.3em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            padding: 12px;
+        }
+
+        thead tr:nth-child(2) th {
+            background-color: #17a2b8;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+            padding: 10px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f6f9;
+        }
+
+        td {
+            text-align: center;
+            padding: 10px;
+            color: #343a40;
+        }
+
+        th {
+            text-align: center;
+        }
+
+        td:first-child {
+            font-weight: 600;
+            color: #007bff;
+        }
+
+        tbody tr:hover {
+            background-color: #e9f5ff;
+            transition: 0.2s ease;
+        }
+        /* Pour rendre le tableau responsive */
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="{{ request.session.title.len }}" style="background-color: blue;">Formations: {{ request.session.title.title }}</th>
+                </tr>
+                <tr>
+                    <th>Prenom élève</th>
+                    <th>Niveau</th>
+                    <th>Heure</th>
+                    <th colspan="{{ request.session.len_date.len }}" style="background-color: aqua;">Jours Choisis</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for Nom, Donnee in valeur2.items %}
+                    <tr>
+                    {% with validator=request.session.voir|get_value:Nom %}
+                        {% if validator %}
+                            <td>{{ Nom }}</td>
+                            {% if request.session.niveau|get_value:Nom %}
+                                {% with niveau=request.session.niveau|get_value:Nom %}
+                                    <td>{{ niveau.Niveau }}</td>
+                                    <td>{{ niveau.heure }}</td>
+                                {% endwith %}
+                            {% endif %}
+                            {% for _, Donnee2 in Donnee.items %}
+                                <td>{{ Donnee2.Jours }}</td>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+</body>
+</html>
