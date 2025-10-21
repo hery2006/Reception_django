@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <section class="heure_ajout">
+        {% if messages %}
+            {% for message in messages %}
+                <h3>{{message}}</h3>
+
+            {% endfor %}
+        {% endif %}
+        <div>
+            <h1>Ajouter une heure ici</h1>
+            <form action="{% url 'heure_save' %}" method="post">
+                {% csrf_token %}
+                <div>
+                    <label for="">Heure debut et fin</label>
+                    <input type="text" name="Debut">
+                </div>
+                <button type="submit"> Enregistrement </button>
+            </form>
+        </div>
+        <div class="liste_heure">
+        </div>
+    </section>
+</body>
+</html>

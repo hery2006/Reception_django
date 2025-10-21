@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>To-Do List Avancée</title>
+<style>
+  body { font-family: Arial; padding: 20px; }
+  #todo-list { list-style: none; padding: 0; width: 300px; }
+  #todo-list li { padding: 10px; margin: 5px 0; background: #f0f0f0; cursor: grab; display: flex; justify-content: space-between; }
+  .done { text-decoration: line-through; color: gray; }
+  button { margin-left: 5px; }
+</style>
+</head>
+<body>
+
+<h2>To-Do List Avancée</h2>
+<input type="text" id="taskInput" placeholder="Nouvelle tâche...">
+<button id="addBtn">Ajouter</button>
+<select id="filter">
+  <option value="all">Toutes</option>
+  <option value="done">Terminées</option>
+  <option value="pending">En cours</option>
+</select>
+
+<ul id="todo-list"></ul>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+// Fonction pour sauvegarder dans localStorage
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+// Fonction pour créer un élément li
+function createTaskElement(task) {
+  let li = document.createElement("li");
+  li.draggable = true;
+  li.dataset.id = task.id;
+  li.className = task.done ? "done" : "";
+
+  li.innerHTML = `<span>${task.text}</span>
+                  <div>
+                    <button class="toggle">✔️</button>
+                    <button class="delete">❌</button>
+                  </div>`;
+
+  // Événement toggle done
+  li.querySelector(".toggle").addEventListener("click", () => {
+    task.done = !task.done;
+    renderTasks();
+    saveTasks();
+  });
+
+  // Événement delete
+  li.querySelector(".delete").addEventListener("click", () => {
+    tasks = tasks.filter(t => t.id !== task.id);
+    renderTasks();
+    saveTasks();
+  });
+
+  // Drag & Drop
+  li.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", task.id));
+  li.addEventListener("dragover", e => e.preventDefault());
+  li.addEventListener("drop", e => {
+    e.preventDefault();
+    let draggedId = e.dataTransfer.getData("text");
+    let draggedIndex = tasks.findIndex(t => t.id == draggedId);
+    let targetIndex = tasks.findIndex(t => t.id == task.id);
+    let [draggedTask] = tasks.splice(draggedIndex, 1);
+    tasks.splice(targetIndex, 0, draggedTask);
+    renderTasks();
+    saveTasks();
+  });
+
+  return li;
+}
+
+// Fonction pour afficher les tâches selon le filtre
+function renderTasks() {
+  let filter = document.getElementById("filter").value;
+  let list = document.getElementById("todo-list");
+  list.innerHTML = "";
+  tasks
+    .filter(task => filter === "all" || (filter === "done" && task.done) || (filter === "pending" && !task.done))
+    .forEach(task => list.appendChild(createTaskElement(task)));
+}
+
+// Ajouter une tâche
+document.getElementById("addBtn").addEventListener("click", () => {
+  let input = document.getElementById("taskInput");
+  if(input.value.trim() === "") return;
+  tasks.push({id: Date.now(), text: input.value.trim(), done: false});
+  input.value = "";
+  renderTasks();
+  saveTasks();
+});
+
+// Filtrer les tâches
+document.getElementById("filter").addEventListener("change", renderTasks);
+
+// Initial render
+renderTasks();
+</script>
+
+</body>
+</html>

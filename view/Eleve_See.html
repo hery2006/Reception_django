@@ -108,7 +108,10 @@
                         </option>
                     </select>
                 </div>
-
+                <div>
+                    <label for="Numero">Numero :</label>
+                    <input type="text" placeholder="Numero de telephone" name="Numero" id="Numero" value="{{ request.session.user_take_eleve.Eleve.Numero }}">
+                </div>
                 <div>
                     <label for="photo">Photo ou document :</label>
                     <input type="file" name="photo" id="photo" accept="image/*,application/pdf">
@@ -151,22 +154,24 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <a href="#"><button>Modifier</button></a>
         </div>
         <div>
             <h1>Ecolage pour eleve</h1>
-            <form action="" method="post" enctype="multipart/form-data">
+            <form action="{% url 'Modif_ecolage_state' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
                 {% for value in Payement %}
                     <div>
                         <label for="">{{ value.Nom }}</label>
                         <h3></h3>
                         <input type="number" name="ecolage_value" value="{{value.Ecolage_payer}}">
-                        <select name="Validations_{{value.id}}" id="Validations_{{value.id}}">
+                        <select name="Validations_payement" id="Validations_{{value.id}}">
                             <option value="False">Non Payer</option>
                             <option value="{{ value.id }}">Payer</option>
                         </select>
                     </div>
                 {% endfor %}
-            <button type="submit"> Validations </button>
+            <button type="submit"> Payement </button>
         </form>
         </div>
     </section>
@@ -218,6 +223,25 @@
         SelectDossier.value = '{{ request.session.user_take_eleve.Eleve.Dossier }}'
         const SelectStatus = document.getElementById('Activision')
         SelectStatus.value = '{{ request.session.user_take_eleve.Eleve.Activision}}'
+        // Mettre en true tous les ecolage qui sont dejas payer et le reste pass 
+        const tuple_creations = {
+            'hery':[
+                    {% for n in Payement %}
+                        {"id": "{{ n.id }}", "nom": "{{ n.Niveaux }}","Ecolage":"{{ n.Ecolage }}"}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+        }
+        const boucle_do = tuple_creations['hery'] || []
+        for (let valeur_take of boucle_do) {
+            let varable = "Validations_"+valeur_take['id']
+            let take_select = document.getElementById(varable)
+            let true_false = String(valeur_take['Ecolage'])
+            if ( true_false == 'True') {
+                take_select.style.backgroundColor=' green '
+                take_select.value = valeur_take['id']
+            }
+        }
+
     </script>
 </body>
 </html>

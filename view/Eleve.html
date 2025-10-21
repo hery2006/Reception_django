@@ -115,7 +115,7 @@
             box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
         }
 
-        form button {
+        /* form button {
             background: #007bff;
             color: white;
             padding: 12px 18px;
@@ -129,7 +129,7 @@
 
         form button:hover {
             background: #0056b3;
-        }
+        } */
 
         /* ------------------------
             TABLEAU LISTE ÉLÈVES
@@ -266,7 +266,10 @@
                     <option value="">-- Choisir un niveau --</option> 
                 </select>
             </div>
-
+            <div>
+                <label for="Numero">Numero :</label>
+                <input type="text" placeholder="Numero de telephone" name="Numero" id="Numero" required>
+            </div>
             <div>
                 <label for="photo">Photo ou document :</label>
                 <input type="file" name="photo" id="photo" accept="image/*,application/pdf">
@@ -278,6 +281,13 @@
 
     <section class="table_eleve">
         <h1>Liste des élèves actuels</h1>
+        <div class="recherche">
+            <form action="{% url 'rechercher' %}" method="post">
+                {% csrf_token %}
+                <input type="text" name="Recherche_text" placeholder="Recherche une personne">
+                <button type="submit"> recherche </button>
+            </form>
+        </div>
         <div class="listage_eleve">
             <table>
                 <thead>
@@ -285,6 +295,7 @@
                         <th>Nom</th>
                         <th>Prénom</th>
                         <th>Droit</th>
+                        <th>Numero</th>
                         <th>Dossier</th>
                         <th>Status</th>
                         <th>Formation</th>
@@ -298,6 +309,7 @@
                                 <td data-label="Nom">{{ value.Nom }}</td>
                                 <td data-label="Prénom">{{ value.Prenom }}</td>
                                 <td data-label="Droit">{{ value.Droit|yesno:"Payer,Non payer" }}</td>
+                                <td>  {{ value.Numero }}  </td>
                                 <td data-label="Dossier">{{ value.Dossier|yesno:"Complet,Pas encore complet" }}</td>
                                 <td {% if value.Status == True %}
                                     style="background-color: #00ff3c;"
@@ -335,6 +347,7 @@
                                                 {% endwith %}
                                             </tbody>
                                         </table>
+                                        <a href="#"><button>Ajouter</button></a>
                                 </td>
                                 <td data-label="Actions">
                                     <a href="{% url 'Delete_eleve' value.id %}">

@@ -86,6 +86,9 @@ def Voir_Emplois_du_temps(request,id,heure):
     context = {
         'donnee':donne_prendre_E_d_T,
         'valeur2':request.session['voir'],
+        'id':id
     }
     return render(request,"Voir_E_d_T.html",context)
 
+def modification_grouper_emplois_du_temps(request,id):
+    pass

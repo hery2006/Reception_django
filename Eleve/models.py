@@ -16,6 +16,8 @@ class Eleve_class(models.Model):
     Dossier = models.BooleanField(default=False)
     Profile = models.ImageField(upload_to='static/profile', default='default.jpg')
     Status = models.BooleanField(default=True)
+    Numero = models.CharField()
+    date = models.DateTimeField(auto_now_add=True)
 class Formations_eleve(models.Model):
     Formations = models.ForeignKey(Formations,on_delete=models.CASCADE)
     Niveau = models.CharField()
