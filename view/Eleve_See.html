@@ -1,247 +1,366 @@
+// ...existing code...
 {% load static %}
 {% load dict_extras %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Modification élève</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+        :root{
+            --bg: #071014;
+            --panel: linear-gradient(180deg,#0d1416 0%, #0b1113 100%);
+            --muted: #9fb0bf;
+            --muted-2: #7f98a3;
+            --text: #d7eef0;
+            --accent: #2dd4bf;
+            --card: #0b1316;
+            --glass: rgba(255,255,255,0.02);
+            --radius: 12px;
+            --gap: 22px;
+            --pad: 16px;
         }
-        form div {
-            margin-bottom: 10px;
-        }
-        label {
-            display: inline-block;
-            width: 150px;
-        }
-        select, input[type="text"], input[type="file"] {
-            padding: 5px;
-            min-width: 200px;
-        }
-        th,td{
-            border: 1px solid black;
-        }
+
+        /* Base */
+        *{box-sizing:border-box}
+        html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased;}
+        a{color:var(--accent);text-decoration:none}
+        .page{padding:28px}
+
+        /* Layout grid: left (form) / center (table) / right (payments).
+           Center column is flexible. Nothing in the table uses a fixed width. */
         .main_section{
-            display: flex;
+            display:grid;
+            grid-template-columns: 360px 1fr 320px;
+            gap:var(--gap);
+            align-items:start;
+            align-content:start;
+        }
+
+        /* Panel style */
+        .panel{
+            background:var(--panel);
+            border:1px solid rgba(255,255,255,0.03);
+            padding:var(--pad);
+            border-radius:var(--radius);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        }
+
+        /* Left form */
+        .modif_info h2{margin:0 0 12px 0}
+        form .row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+        form label{width:130px;color:var(--muted);font-weight:600;font-size:14px}
+        form input[type="text"], form input[type="number"], form select, form input[type="file"]{
+            flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);
+        }
+        form select:focus, form input:focus{box-shadow:0 0 0 4px rgba(45,212,191,0.06);border-color:var(--accent);outline:none}
+        .actions{margin-top:8px}
+        .btn{padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700;color:#021012;background:linear-gradient(90deg,#1f6f63,#2dd4bf)}
+
+        /* Center: table area */
+        .Emplois_du_temps{min-width:0} /* allow shrinking below content and rely on scroll */
+        .table_title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px}
+        .table_title h3{margin:0;font-size:16px}
+        .table_scroll{
+            overflow:auto; /* horizontal/vertical scroll as needed */
+            -webkit-overflow-scrolling:touch;
+            border-radius:10px;
+            padding:8px; /* inner padding so table can breathe */
+            background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+        }
+        .table_card{
+            padding:12px;border-radius:10px;background:var(--card);border:1px solid rgba(255,255,255,0.02);
+            min-width:0;
+        }
+
+        /* Visual table: NO fixed width. It grows with content and can be scrolled horizontally */
+        table.visual_table{
+            border-collapse:collapse;
+            table-layout:auto; /* allow browser to size columns based on content / colspan */
+            width:auto; /* do not set a fixed width */
+            font-size:14px;
+            color:var(--muted);
+            margin:0;
+            border-radius:8px;
+            overflow:visible;
+        }
+
+        table.visual_table thead th{
+            background: linear-gradient(90deg, rgba(20,25,30,0.98), rgba(18,22,28,0.98));
+            color:var(--text);
+            font-weight:700;
+            padding:12px 18px;
+            text-align:left;
+            border-bottom:1px solid rgba(255,255,255,0.04);
+            position:sticky;
+            top:8px; /* inside scroll wrapper */
+            z-index:3;
+            white-space:nowrap;
+        }
+
+        table.visual_table td{
+            padding:14px 16px;
+            vertical-align:top;
+            border-bottom:1px solid rgba(255,255,255,0.02);
+            background:transparent;
+            color:var(--muted);
+        }
+
+        /* emphasize first column */
+        table.visual_table tr td:first-child{
+            color:var(--text);
+            font-weight:700;
+            white-space:nowrap;
+        }
+
+        /* mini schedule inside each cell: full width */
+        table.mini_schedule{
+            width:100%;border-collapse:collapse;background:rgba(255,255,255,0.015);border-radius:6px;font-size:13px;overflow:hidden;
+        }
+        table.mini_schedule th, table.mini_schedule td{padding:8px 10px;text-align:left;color:var(--muted-2);border-bottom:1px solid rgba(255,255,255,0.02);white-space:nowrap}
+        table.mini_schedule thead th{color:var(--muted);font-weight:700;font-size:12px}
+
+        /* subtle row background for readability */
+        table.visual_table tbody tr:nth-child(odd) td{ background: rgba(255,255,255,0.01) }
+
+        /* Right panel (payments) */
+        .ecolage_panel h3{margin:0 0 12px 0}
+        .ecolage_item{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+        .ecolage_item .muted{margin-bottom:6px}
+        .ecolage_item input, .ecolage_item select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)}
+
+        /* Responsive: stack columns on narrow screens */
+        @media (max-width:980px){
+            .main_section{grid-template-columns: 1fr; }
+            form label{width:110px}
         }
     </style>
 </head>
 <body>
+<div class="page">
     <section class="main_section">
-        <div class="modif_info">
-        {% if messages %}
-            {% for mess in messages %}
-                {{ mess }}
-            {% endfor %}
-        {% endif %}
-            <h3> Informations sur l'eleve selectionnee </h3>
-            <form action="{% url 'update_eleve_value' request.session.user_take_eleve.Eleve.id %}" method="post" enctype="multipart/form-data">
+
+        <!-- LEFT: Informations -->
+        <div class="panel modif_info">
+            {% if messages %}
+                {% for mess in messages %}
+                    <div class="muted" style="margin-bottom:8px">{{ mess }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <h2>Informations sur l'élève</h2>
+
+            <form action="{% url 'update_eleve_value' request.session.user_take_eleve.Eleve.id %}" method="post" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
-                <div>
-                    <label for="Nom">Nom :</label>
-                    <input type="text" placeholder="Nom" name="Nom" id="Nom" required 
-                           value="{{ request.session.user_take_eleve.Eleve.nom }}">
+                <div class="row">
+                    <label for="Nom">Nom</label>
+                    <input type="text" id="Nom" name="Nom" required value="{{ request.session.user_take_eleve.Eleve.nom }}">
                 </div>
 
-                <div>
-                    <label for="Prenom">Prénom :</label>
-                    <input type="text" placeholder="Prénom" name="Prenom" id="Prenom" required 
-                           value="{{ request.session.user_take_eleve.Eleve.Prenom }}">
+                <div class="row">
+                    <label for="Prenom">Prénom</label>
+                    <input type="text" id="Prenom" name="Prenom" required value="{{ request.session.user_take_eleve.Eleve.Prenom }}">
                 </div>
-                <div>
-                    <label for="Activision">Status de l'eleve :</label>
-                    <select name="Activision" id="Activision">
-                        <option value="True">
-                            Actif
-                        </option>
-                        <option value="False">
-                            Plus Actif
-                        </option>
+
+                <div class="row">
+                    <label for="Activision">Statut</label>
+                    <select id="Activision" name="Activision">
+                        <option value="True">Actif</option>
+                        <option value="False">Plus Actif</option>
                     </select>
                 </div>
 
-                <div>
-                    <label for="Formation">Formation :</label>
-                    <select name="Formations" id="Formation" required>
+                <div class="row">
+                    <label for="Formation">Formation</label>
+                    <select id="Formation" name="Formations" required>
                         <option value="">-- Choisir une formation --</option>
                         {% for f in Formations %}
-                            <option value="{{ f.id }}"
-                                {% if request.session.user_take_eleve.Eleve.formations_id == f.id %}
-                                    selected
-                                {% endif %}
-                            >{{ f.Nom }}</option>
+                            <option value="{{ f.id }}" {% if request.session.user_take_eleve.Eleve.formations_id == f.id %}selected{% endif %}>{{ f.Nom }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <div>
-                    <label for="Niveau">Niveau :</label>
-                    <select name="Niveau" id="Niveau">
+                <div class="row">
+                    <label for="Niveau">Niveau</label>
+                    <select id="Niveau" name="Niveau">
                         <option value="">-- Choisir un niveau --</option>
                     </select>
                 </div>
 
-                <div>
-                    <label for="Droit">Droit :</label>
-                    <select name="Droit" id="Droit">
-                        <option value="True">
-                            Payer
-                        </option>
-                        <option value="False">
-                            Pas encore payer
-                        </option>
+                <div class="row">
+                    <label for="Droit">Droit</label>
+                    <select id="Droit" name="Droit">
+                        <option value="True">Payer</option>
+                        <option value="False">Pas encore payer</option>
                     </select>
                 </div>
 
-                <div>
-                    <label for="Dossier">Dossier :</label>
-                    <select name="Dossier" id="Dossier">
-                        <option value="True">
-                            Complet
-                        </option>
-                        <option value="False">
-                            Pas encore complet
-                        </option>
+                <div class="row">
+                    <label for="Dossier">Dossier</label>
+                    <select id="Dossier" name="Dossier">
+                        <option value="True">Complet</option>
+                        <option value="False">Pas encore complet</option>
                     </select>
                 </div>
-                <div>
-                    <label for="Numero">Numero :</label>
-                    <input type="text" placeholder="Numero de telephone" name="Numero" id="Numero" value="{{ request.session.user_take_eleve.Eleve.Numero }}">
-                </div>
-                <div>
-                    <label for="photo">Photo ou document :</label>
-                    <input type="file" name="photo" id="photo" accept="image/*,application/pdf">
+
+                <div class="row">
+                    <label for="Numero">Numéro</label>
+                    <input type="text" id="Numero" name="Numero" value="{{ request.session.user_take_eleve.Eleve.Numero }}">
                 </div>
 
-                <button type="submit">Modifier</button>
+                <div class="row">
+                    <label for="photo">Photo / document</label>
+                    <input type="file" id="photo" name="photo" accept="image/*,application/pdf">
+                </div>
+
+                <div class="actions">
+                    <button class="btn" type="submit">Modifier</button>
+                </div>
             </form>
         </div>
-        <div class="Emplois_du_temps">
-            <table>
-                <thead>
-                    <th> Nom et prenom</th>
-                    <th> Niveau </th>
-                    <th colspan="3"> Emplois du temps </th>
-                </thead>
-                <tbody>
-                    {% for name,data  in request.session.personnel_emplois_du_temps.items %}
-                    <tr>
-                        <td> {{ request.session.user_take_eleve.Eleve.nom }} {{ request.session.user_take_eleve.Eleve.Prenom }}</td>
-                        <td>{{ name }}</td>
-                        {% for jours,data2 in data.items %}
-                        <td>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th> Jours </th>
-                                        <th> Heure </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{{ jours }}</td>
-                                        <td>{{ data2.heure }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <a href="#"><button>Modifier</button></a>
+
+        <!-- CENTER: Emplois du temps (table adaptative) -->
+        <div class="panel Emplois_du_temps">
+            <div class="table_title">
+                <h3>Emplois du temps</h3>
+                <small class="muted">Table adaptative — s'agrandit selon le contenu (colspan variable)</small>
+            </div>
+
+            <div class="table_scroll" role="region" aria-label="Emplois du temps - défilement">
+                <div class="table_card">
+                    <table class="visual_table" role="table" aria-label="Emplois du temps élève">
+                        <thead>
+                            <tr>
+                                <th>Nom et prénom</th>
+                                <th>Niveau</th>
+                                <!-- Pas de largeur fixe, colspan peut varier -->
+                                <th colspan="3">Jour / Plage horaire</th>
+                                <!-- <th>Jour / Plage horaire</th>
+                                <th>Jour / Plage horaire</th>
+                                <th>Jour / Plage horaire</th> -->
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for name,data in request.session.personnel_emplois_du_temps.items %}
+                                <tr>
+                                    <td>{{ request.session.user_take_eleve.Eleve.nom }} {{ request.session.user_take_eleve.Eleve.Prenom }}</td>
+                                    <td>{{ name }}</td>
+                                    {% for jours,data2 in data.items %}
+                                        <td>
+                                            <table class="mini_schedule" aria-hidden="true">
+                                                <thead>
+                                                    <tr><th>Jours</th><th>Heure</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>{{ jours }}</td>
+                                                        <td>{{ data2.heure }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="6" style="padding:18px 16px;color:var(--muted)">Aucun emploi du temps disponible.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top:14px;display:flex;justify-content:flex-end">
+                <a href="#"><button class="btn" type="button">Modifier</button></a>
+            </div>
         </div>
-        <div>
-            <h1>Ecolage pour eleve</h1>
+
+        <!-- RIGHT: Ecolage -->
+        <div class="panel ecolage_panel">
+            <h3>Ecolage pour élève</h3>
+
             <form action="{% url 'Modif_ecolage_state' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for value in Payement %}
-                    <div>
-                        <label for="">{{ value.Nom }}</label>
-                        <h3></h3>
-                        <input type="number" name="ecolage_value" value="{{value.Ecolage_payer}}">
-                        <select name="Validations_payement" id="Validations_{{value.id}}">
-                            <option value="False">Non Payer</option>
-                            <option value="{{ value.id }}">Payer</option>
-                        </select>
+                    <div class="ecolage_item">
+                        <div style="flex:1">
+                            <div class="muted" style="font-size:13px">{{ value.Nom }}</div>
+                            <input type="number" name="ecolage_value_{{ value.id }}" value="{{ value.Ecolage_payer }}" style="margin-top:6px;width:100%">
+                        </div>
+                        <div>
+                            <select name="Validations_payement_{{ value.id }}" id="Validations_{{value.id}}">
+                                <option value="False">Non Payer</option>
+                                <option value="{{ value.id }}">Payer</option>
+                            </select>
+                        </div>
                     </div>
                 {% endfor %}
-            <button type="submit"> Payement </button>
-        </form>
+
+                <div style="margin-top:12px">
+                    <button class="btn" type="submit">Payement</button>
+                </div>
+            </form>
         </div>
+
     </section>
+</div>
 
-    <script>
-        // === Structure des niveaux par formation ===
-        const niveauxParFormation = {
-            {% for f in Formations %}
-                "{{ f.id }}": [
-                    {% for n in f.niveau_par_formations_set.all %}
-                        {"id": "{{ n.id }}", "nom": "{{ n.Niveaux }}"}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                ]{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        };
+<script>
+    /* Remplissage dynamique des niveaux par formation */
+    const niveauxParFormation = {
+        {% for f in Formations %}
+            "{{ f.id }}": [
+                {% for n in f.niveau_par_formations_set.all %}
+                    {"id":"{{ n.id }}","nom":"{{ n.Niveaux|escapejs }}"}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
 
-        const selectFormation = document.getElementById('Formation');
-        const selectNiveau = document.getElementById('Niveau');
+    const selectFormation = document.getElementById('Formation');
+    const selectNiveau = document.getElementById('Niveau');
 
-        // Fonction pour charger les niveaux d'une formation donnée
-        function chargerNiveaux(formationId, niveauActuel = "") {
-            const niveaux = niveauxParFormation[formationId] || [];
-            selectNiveau.innerHTML = '<option value="">-- Choisir un niveau --</option>';
-            niveaux.forEach(n => {
-                const option = document.createElement('option');
-                option.value = n.nom;
-                option.textContent = n.nom;
-                if (n.nom === niveauActuel) {
-                    option.selected = true;
-                }
-                selectNiveau.appendChild(option);
-            });
-        }
-
-        // Lorsqu’on change la formation
-        selectFormation.addEventListener('change', function() {
-            chargerNiveaux(this.value);
+    function chargerNiveaux(formationId, niveauActuel = "") {
+        if (!selectNiveau) return;
+        const niveaux = niveauxParFormation[formationId] || [];
+        selectNiveau.innerHTML = '<option value="">-- Choisir un niveau --</option>';
+        niveaux.forEach(n => {
+            const opt = document.createElement('option');
+            opt.value = n.nom;
+            opt.textContent = n.nom;
+            if (n.nom === niveauActuel) opt.selected = true;
+            selectNiveau.appendChild(opt);
         });
+    }
 
-        // Initialisation automatique au chargement de la page
+    if (selectFormation) {
+        selectFormation.addEventListener('change', function(){ chargerNiveaux(this.value); });
         const formationIdActuelle = selectFormation.value;
         const niveauActuel = "{{ request.session.user_take_eleve.Eleve.Niveau|default:'' }}";
-        if (formationIdActuelle) {
-            chargerNiveaux(formationIdActuelle, niveauActuel);
-        }
-        const SelectDroit = document.getElementById('Droit')
-        SelectDroit.value = "{{ request.session.user_take_eleve.Eleve.Droit }}"
-        const SelectDossier = document.getElementById('Dossier')
-        SelectDossier.value = '{{ request.session.user_take_eleve.Eleve.Dossier }}'
-        const SelectStatus = document.getElementById('Activision')
-        SelectStatus.value = '{{ request.session.user_take_eleve.Eleve.Activision}}'
-        // Mettre en true tous les ecolage qui sont dejas payer et le reste pass 
-        const tuple_creations = {
-            'hery':[
-                    {% for n in Payement %}
-                        {"id": "{{ n.id }}", "nom": "{{ n.Niveaux }}","Ecolage":"{{ n.Ecolage }}"}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                ]
-        }
-        const boucle_do = tuple_creations['hery'] || []
-        for (let valeur_take of boucle_do) {
-            let varable = "Validations_"+valeur_take['id']
-            let take_select = document.getElementById(varable)
-            let true_false = String(valeur_take['Ecolage'])
-            if ( true_false == 'True') {
-                take_select.style.backgroundColor=' green '
-                take_select.value = valeur_take['id']
-            }
-        }
+        if (formationIdActuelle) chargerNiveaux(formationIdActuelle, niveauActuel);
+    }
 
-    </script>
+    /* Initialisation selects état */
+    const setIf = (id, value) => { const s = document.getElementById(id); if(s) s.value = value; };
+    setIf('Droit', "{{ request.session.user_take_eleve.Eleve.Droit }}");
+    setIf('Dossier', "{{ request.session.user_take_eleve.Eleve.Dossier }}");
+    setIf('Activision', "{{ request.session.user_take_eleve.Eleve.Activision }}");
+
+    /* Marquer paiements déjà réglés */
+    (function markPaid(){
+        {% for n in Payement %}
+            (function(){
+                const el = document.getElementById('Validations_{{ n.id }}');
+                if (!el) return;
+                {% if n.Ecolage %}
+                    el.value = "{{ n.id }}";
+                    el.style.background = "rgba(45,212,191,0.08)";
+                {% endif %}
+            })();
+        {% endfor %}
+    })();
+</script>
 </body>
 </html>
+// ...existing code...

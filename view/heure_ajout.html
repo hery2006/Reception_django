@@ -1,31 +1,150 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Ajouter une Heure</title>
+    <style>
+/* ------------------------
+   RESET & BASE
+------------------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+body {
+    background-color: #0d1416;
+    color: #d7eef0;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* ------------------------
+   SECTION HEURE AJOUT
+------------------------ */
+.heure_ajout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 65vh;
+    padding: 30px 20px;
+    gap: 30px;
+}
+
+.heure_ajout h1 {
+    font-size: 1.8rem;
+    color: #2dd4bf;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.heure_ajout h3 {
+    color: #ff6b6b;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+/* FORMULAIRE */
+.heure_ajout form {
+    background-color: #121e23;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.heure_ajout form div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.heure_ajout label {
+    font-size: 1rem;
+    color: #ffb347;
+}
+
+.heure_ajout input[type="text"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background-color: #0d1416;
+    color: #d7eef0;
+    font-size: 1rem;
+}
+
+.heure_ajout input[type="text"]:focus {
+    outline: none;
+    border-color: #2dd4bf;
+}
+
+/* BOUTON */
+.heure_ajout button {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: #2dd4bf;
+    color: #0d1416;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.heure_ajout button:hover {
+    opacity: 0.85;
+}
+
+/* ------------------------
+   LISTE HEURE
+------------------------ */
+.liste_heure {
+    width: 100%;
+    max-width: 600px;
+    background-color: #121e23;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    min-height: 150px;
+}
+
+/* RESPONSIVE */
+@media(max-width: 500px) {
+    .heure_ajout form, .liste_heure {
+        width: 90%;
+    }
+}
+    </style>
 </head>
 <body>
     <section class="heure_ajout">
         {% if messages %}
             {% for message in messages %}
-                <h3>{{message}}</h3>
-
+                <h3>{{ message }}</h3>
             {% endfor %}
         {% endif %}
-        <div>
-            <h1>Ajouter une heure ici</h1>
-            <form action="{% url 'heure_save' %}" method="post">
-                {% csrf_token %}
-                <div>
-                    <label for="">Heure debut et fin</label>
-                    <input type="text" name="Debut">
-                </div>
-                <button type="submit"> Enregistrement </button>
-            </form>
-        </div>
+        
+        <h1>Ajouter une heure</h1>
+        
+        <form action="{% url 'heure_save' %}" method="post">
+            {% csrf_token %}
+            <div>
+                <label for="">Heure début et fin</label>
+                <input type="text" name="Debut" placeholder="Ex: 08:00 - 09:00">
+            </div>
+            <button type="submit">Enregistrement</button>
+        </form>
+        
         <div class="liste_heure">
+            <!-- Ici tu pourras lister les heures ajoutées -->
         </div>
     </section>
 </body>

@@ -1,153 +1,402 @@
 {% load static %}
 {% load dict_extras %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href=" {% static 'style.css'%} ">
+    <title>Dashboard TalentForge</title>
     <style>
-        .Emplois_du_temps{
-            width: 85%;
-            height: 100vh;
-            margin-left: 15%;
-        }
-        .table_template_emplois_du_temps{
-            border-collapse: collapse;
-            width: 80%;
-        }
-        .table_template_emplois_du_temps td,.table_template_emplois_du_temps th{
-            border: 1px solid black;
-        }
+/* ------------------------
+   RESET & BASE
+------------------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    text-decoration: none;
+}
+
+body {
+    background-color: #0d1416;
+    color: #d7eef0;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* ------------------------
+   NAVIGATION
+------------------------ */
+.bar_status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background-color: #121e23;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.text_title h1 {
+    font-size: 1.8rem;
+    color: #2dd4bf;
+}
+
+.text_title h3 {
+    font-size: 1rem;
+    color: #a0d8d3;
+}
+
+.liste_option {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.liste_option a {
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 5px;
+    transition: 0.3s;
+    color: #2dd4bf;
+}
+
+.liste_option a:hover {
+    background-color: #2dd4bf;
+    color: #0d1416;
+}
+
+/* ------------------------
+   PAGE PRINCIPALE
+------------------------ */
+.page_principales {
+    padding: 30px 40px;
+    min-height: 65vh;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.accueil_page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    min-height: 65vh;
+}
+
+.informations_global {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+.card_info {
+    flex: 1 1 300px;
+    max-width: 350px;
+    min-height: 65vh;
+    background-color: #121e23;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card_info:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.card_info h2 {
+    color: #ffb347;
+    font-size: 1.5rem;
+    margin: 15px 0 10px 0;
+}
+
+.card_info h4 {
+    color: #d7eef0;
+    font-size: 1rem;
+    flex-grow: 1;
+}
+
+.card_info button {
+    width: 50%;
+    height: 45px;
+    background-color: #2dd4bf;
+    border: none;
+    border-radius: 8px;
+    color: #0d1416;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: opacity 0.3s;
+}
+
+.card_info button:hover {
+    opacity: 0.85;
+}
+
+/* ------------------------
+   EMPLOIS DU TEMPS
+------------------------ */
+.Emplois_du_temps {
+    width: 95%;
+    margin: 30px auto;
+    min-height: 65vh;
+    padding: 20px;
+    background-color: #121e23;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    overflow-x: auto;
+}
+
+.Emplois_du_temps h1 {
+    font-size: 1.8rem;
+    color: #2dd4bf;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.table_template_emplois_du_temps {
+    width: 100%;
+    border-collapse: collapse;
+    color: #d7eef0;
+    font-size: 1rem;
+}
+
+.table_template_emplois_du_temps th,
+.table_template_emplois_du_temps td {
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.table_template_emplois_du_temps th {
+    background: linear-gradient(90deg, #1a2a33, #0d1416);
+    color: #2dd4bf;
+}
+
+.table_template_emplois_du_temps td table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table_template_emplois_du_temps td table th {
+    font-size: 0.9rem;
+    padding: 4px 6px;
+    color: #ffb347;
+}
+
+.table_template_emplois_du_temps td table td {
+    font-size: 0.85rem;
+    padding: 4px 6px;
+}
+
+.table_template_emplois_du_temps tr:hover {
+    background-color: rgba(45,212,191,0.08);
+}
+
+.table_template_emplois_du_temps button {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #2dd4bf;
+    color: #0d1416;
+    cursor: pointer;
+}
+
+.table_template_emplois_du_temps button:hover {
+    opacity: 0.85;
+}
+
+.ajouter_eleve {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.ajouter_eleve button {
+    width: 25%;
+    height: 40px;
+    font-size: 1rem;
+    border-radius: 8px;
+    background-color: #2dd4bf;
+    border: none;
+    color: #0d1416;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ajouter_eleve button:hover {
+    opacity: 0.85;
+}
+
+/* ------------------------
+   RESPONSIVE
+------------------------ */
+@media(max-width: 1200px) {
+    .bar_status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .liste_option {
+        flex-wrap: wrap;
+    }
+    .informations_global {
+        flex-direction: column;
+        align-items: center;
+    }
+    .Emplois_du_temps {
+        width: 100%;
+    }
+}
     </style>
 </head>
 <body>
 {% block contenue %}
-    <main>
-        <section class="bar_status">
-            <div class="title_class">
-                <!-- <div class="line_title"></div> -->
-                <div class="text_title">
-                    <h1 class="TalentForge">TalentForge</h1>
-                    <h3 class="institus"> institute</h3>
+<main>
+
+    <!-- ------------------------
+        BARRE DE NAVIGATION
+    ------------------------ -->
+    <section class="bar_status">
+        <div class="title_class">
+            <div class="text_title">
+                <h1 class="TalentForge">TalentForge</h1>
+                <h3 class="institus">institute</h3>
+            </div>
+        </div>
+        <ul class="liste_option">
+            <a class="options" href="{% url 'homepage' %}">Accueil</a>
+            <a class="options" href="{% url 'Formations' %}">Formations</a>
+            <a class="options" href="#Emplois_du_temps">Emplois du temps</a>
+            <a class="options" href="#">Professeur</a>
+            <a class="options" href="{% url 'Eleve_page' %}">Ecolage</a>
+        </ul>
+    </section>
+
+    <!-- ------------------------
+        ACCUEIL PAGE
+    ------------------------ -->
+    <section class="page_principales">
+        <div class="accueil_page">
+            <div class="title_accueil">
+                <h1>Bienvenus</h1>
+            </div>
+            <div class="informations_global">
+                <div class="card_info">
+                    <img src="" alt="">
+                    <h2>Liste des élèves</h2>
+                    <h4>Le nombre d'élèves a augmenté de 5% par rapport au mois dernier</h4>
+                    <a href="{% url 'Eleve_page' %}">
+                        <button>Voir</button>
+                    </a>
+                </div>
+                <div class="card_info">
+                    <img src="" alt="">
+                    <h2>Toutes les formations</h2>
+                    <h4>Toutes les formations sont occupées</h4>
+                    <a href="{% url 'Formations' %}">
+                        <button>Voir</button>
+                    </a>
+                </div>
+                <div class="card_info">
+                    <img src="" alt="">
+                    <h2>Liste des professeurs</h2>
+                    <h4>Le nombre d'heures des professeurs a augmenté de 6%</h4>
+                    <a href="">
+                        <button>Voir</button>
+                    </a>
                 </div>
             </div>
-            <lu class="liste_option">
-                <li class="options">Accueil </li>
-                <li class="options">Formations </li>
-                <li class="options">Emplois de temps </li>
-                <li class="options">Professeur </li>
-                <li class="options">Ecolage </li>
-            </lu>
-        </section>
-        <section class="page_principales">
-            <div class="accueil_page">
-                <div class="title_accuiel">
-                    <h1>Bienvenus</h1>
-                </div>
-                <div class="informations_global">
-                    <div class="nombre_eleve">
-                        <img src="" alt="" style="width: 100%;height: 55%;">
-                        <h2 style="width: 100%;min-height: max-content;text-align: center;color: rgb(255, 166, 0);"> Liste des eleves</h2>
-                        <h4 style="margin-top: 15px;width: 80%;margin-left: 10%;">Le nombre d'eleve a augmater de 5% par rapport au mois dernier</h4>
-                        <a href="{% url 'Eleve_page' %}" style="width: 100%;min-height: max-content;display: flex;align-items: center;justify-content: center;margin-top: 15px;">
-                            <button style="width: 25%;height: 40px;font-size: medium;background-color: blue;border-radius: 8px;">Voir</button>
-                        </a>
-                    </div>
-                    <div class="nbr_formtions">
-                        <img src="" alt="" style="width: 100%;height: 55%;">
-                        <h2 style="width: 100%;min-height: max-content;text-align: center;color: rgb(255, 166, 0);"> Tous les Formations</h2>
-                        <h4 style="margin-top: 15px;width: 80%;margin-left: 10%;"> Tous les formations sont occupee</h4>
-                        <a href="{% url 'Formations' %}" style="width: 100%;min-height: max-content;display: flex;align-items: center;justify-content: center;margin-top: 15px;">
-                            <button style="width: 25%;height: 40px;font-size: medium;background-color: blue;border-radius: 8px;">Voir</button>
-                        </a>
-                    </div>
-                    <div class="nbr_professeur">
-                        <img src="" alt="" style="width: 100%;height: 55%;">
-                        <h2 style="width: 100%;min-height: max-content;text-align: center;color: rgb(255, 166, 0);"> Liste des Professeurs</h2>
-                        <h4 style="margin-top: 15px;width: 80%;margin-left: 10%;">Le nombre d'heure des professeurs en augmater de 6%</h4>
-                        <a href="" style="width: 100%;min-height: max-content;display: flex;align-items: center;justify-content: center;margin-top: 15px;">
-                            <button style="width: 25%;height: 40px;font-size: medium;background-color: blue;border-radius: 8px;">Voir</button>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="Formations_page">
-            
-        </section>
-        <section class="Emplois_du_temps">
-            <h1>Emplois du temps</h1>
-                {% if messages %}
-                    {% for valide in messages %}
-                        <h1>{{valide}}</h1>
-                    {% endfor %}
-                {% endif %}
-            <table class="table_template_emplois_du_temps">
-                <thead>
+        </div>
+    </section>
+
+    <!-- ------------------------
+        EMPLOIS DU TEMPS
+    ------------------------ -->
+    <section class="Emplois_du_temps" name="Emplois_du_temps">
+        <h1>Emplois du temps</h1>
+        {% if messages %}
+            {% for valide in messages %}
+                <h1>{{valide}}</h1>
+            {% endfor %}
+        {% endif %}
+        <table class="table_template_emplois_du_temps">
+            <thead>
+                <tr>
+                    <th>Heure</th>
+                    <th>Lundi</th>
+                    <th>Mardi</th>
+                    <th>Mercredi</th>
+                    <th>Jeudi</th>
+                    <th>Vendredi</th>
+                    <th>Samedi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for heure in disponibiliter %}
                     <tr>
-                        <th>Heure</th>
-                        <th>Lundi</th>
-                        <th>Mardi</th>
-                        <th>Mercredi</th>
-                        <th>Jeudi</th>
-                        <th>Vendredi</th>
-                        <th>Samedi</th>
+                        <td>{{ heure.Heure }}</td>
+                        {% for jour, data in emplois.items %}
+                            {% if data|get_value:heure.Heure == "Libre" %}
+                                <td>Libre</td>
+                            {% else %}
+                                {% with info=data|get_value:heure.Heure %}
+                                    <td>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    {% for Formations_t ,value_for in request.session.formations_table.items %}
+                                                        <th>{{Formations_t}}</th>
+                                                    {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    {% for Formations_t ,value_for in request.session.formations_table.items %}
+                                                        <td>
+                                                            {% for boucle in info %}
+                                                                {% with valeur_info=boucle|get_value:Formations_t %}
+                                                                    {% if valeur_info %}
+                                                                        <h4>nombre d'élèves {{ boucle.nombre }}</h4>
+                                                                        <a href="{% url 'V_E_d_t' boucle.id heure.Heure %}">
+                                                                            <button>Voir</button>
+                                                                        </a>
+                                                                    {% endif %}
+                                                                {% endwith %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
                     </tr>
-                </thead>
-                <tbody>
-                    {% for heure in disponibiliter %}
-                        <tr>
-                            <td>{{ heure.Heure }}</td>
-                            {% for jour, data in emplois.items %}
-                                {% if data|get_value:heure.Heure == "Libre" %}
-                                    <td>Libre</td>
-                                {% else %}
-                                    {% with info=data|get_value:heure.Heure %}
-                                        <td>
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        {% for Formations_t ,value_for in request.session.formations_table.items %}
-                                                            <th>{{Formations_t}}</th>
-                                                        {% endfor %}
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        {% for Formations_t ,value_for in request.session.formations_table.items %}
-                                                            <td>
-                                                                {% for boucle in info %}
-                                                                    {% with valeur_info=boucle|get_value:Formations_t %}
-                                                                        {% if valeur_info %}
-                                                                            <h4> nombre d'eleve {{ boucle.nombre }}</h4>
-                                                                            <a href="{% url 'V_E_d_t' boucle.id heure.Heure %}">
-                                                                                <button>Voir</button>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endwith %}
-                                                                {% endfor %}
-                                                            </td>
-                                                        {% endfor %}
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    {% endwith %}
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <div class="ajouter_eleve">
-                <a href="{% url 'Heure' %}">
-                    <button>Ajouter une nouvelle heure</button>
-                </a>
-            </div>
-        </section>
-    </main>
-{% endblock contenue %}    
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="ajouter_eleve">
+            <a href="{% url 'Heure' %}">
+                <button>Ajouter une nouvelle heure</button>
+            </a>
+        </div>
+    </section>
+
+</main>
+{% endblock contenue %}
 </body>
 </html>

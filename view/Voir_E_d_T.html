@@ -1,118 +1,158 @@
 {% load static %}
 {% load dict_extras %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Formations Élèves</title>
     <style>
-        body {
-            font-family: "Segoe UI", Tahoma, sans-serif;
-            background-color: #f8f9fa;
-            margin: 30px;
-        }
+/* ------------------------
+   RESET & BASE
+------------------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            overflow: hidden;
-        }
+body {
+    background-color: #0d1416;
+    color: #d7eef0;
+    padding: 30px;
+    font-size: 1rem;
+    line-height: 1.6;
+}
 
-        thead tr:first-child th {
-            background-color: #007bff;
-            color: white;
-            font-size: 1.3em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-align: center;
-            padding: 12px;
-        }
+/* ------------------------
+   TABLEAU
+------------------------ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    background-color: #121e23;
+}
 
-        thead tr:nth-child(2) th {
-            background-color: #17a2b8;
-            color: white;
-            text-align: center;
-            font-weight: 600;
-            padding: 10px;
-        }
+thead tr:first-child th {
+    background-color: #2dd4bf;
+    color: #0d1416;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 15px;
+}
 
-        tbody tr {
-            border-bottom: 1px solid #dee2e6;
-        }
+thead tr:nth-child(2) th {
+    background-color: #1a2a33;
+    color: #2dd4bf;
+    font-weight: 600;
+    text-align: center;
+    padding: 12px;
+}
 
-        tbody tr:nth-child(even) {
-            background-color: #f2f6f9;
-        }
+tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
 
-        td {
-            text-align: center;
-            padding: 10px;
-            color: #343a40;
-        }
+tbody tr:nth-child(even) {
+    background-color: rgba(45,212,191,0.08);
+}
 
-        th {
-            text-align: center;
-        }
+td {
+    text-align: center;
+    padding: 12px;
+    color: #d7eef0;
+}
 
-        td:first-child {
-            font-weight: 600;
-            color: #007bff;
-        }
+td:first-child {
+    font-weight: 600;
+    color: #ffb347;
+}
 
-        tbody tr:hover {
-            background-color: #e9f5ff;
-            transition: 0.2s ease;
-        }
-        /* Pour rendre le tableau responsive */
-        @media (max-width: 768px) {
-            table {
-                font-size: 0.9em;
-            }
+tbody tr:hover {
+    background-color: rgba(45,212,191,0.2);
+    transition: 0.2s ease;
+}
 
-            th, td {
-                padding: 8px;
-            }
-        }
+/* ------------------------
+   BOUTON
+------------------------ */
+button {
+    margin-top: 20px;
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: none;
+    background-color: #2dd4bf;
+    color: #0d1416;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+/* ------------------------
+   RESPONSIVE
+------------------------ */
+@media(max-width: 768px) {
+    table {
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 8px;
+    }
+    button {
+        width: 100%;
+    }
+}
     </style>
 </head>
 <body>
-        <table>
-            <thead>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="{{ request.session.title.len }}">Formations: {{ request.session.title.title }}</th>
+            </tr>
+            <tr>
+                <th>Prénom élève</th>
+                <th>Niveau</th>
+                <th>Heure</th>
+                <th colspan="{{ request.session.len_date.len }}">Jours Choisis</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Nom, Donnee in valeur2.items %}
                 <tr>
-                    <th colspan="{{ request.session.title.len }}" style="background-color: blue;">Formations: {{ request.session.title.title }}</th>
-                </tr>
-                <tr>
-                    <th>Prenom élève</th>
-                    <th>Niveau</th>
-                    <th>Heure</th>
-                    <th colspan="{{ request.session.len_date.len }}" style="background-color: aqua;">Jours Choisis</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for Nom, Donnee in valeur2.items %}
-                    <tr>
-                    {% with validator=request.session.voir|get_value:Nom %}
-                        {% if validator %}
-                            <td>{{ Nom }}</td>
-                            {% if request.session.niveau|get_value:Nom %}
-                                {% with niveau=request.session.niveau|get_value:Nom %}
-                                    <td>{{ niveau.Niveau }}</td>
-                                    <td>{{ niveau.heure }}</td>
-                                {% endwith %}
-                            {% endif %}
-                            {% for _, Donnee2 in Donnee.items %}
-                                <td>{{ Donnee2.Jours }}</td>
-                            {% endfor %}
+                {% with validator=request.session.voir|get_value:Nom %}
+                    {% if validator %}
+                        <td>{{ Nom }}</td>
+                        {% if request.session.niveau|get_value:Nom %}
+                            {% with niveau=request.session.niveau|get_value:Nom %}
+                                <td>{{ niveau.Niveau }}</td>
+                                <td>{{ niveau.heure }}</td>
+                            {% endwith %}
                         {% endif %}
-                    {% endwith %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href=""> <button>Modifications grouper</button> </a>
+                        {% for _, Donnee2 in Donnee.items %}
+                            <td>{{ Donnee2.Jours }}</td>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="text-align: center;">
+        <a href="">
+            <button>Modifications Groupées</button>
+        </a>
+    </div>
 </body>
 </html>

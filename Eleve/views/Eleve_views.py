@@ -5,22 +5,61 @@ from difflib import SequenceMatcher
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
-def Eleve_fonctions(request):
-    Donne_formations = Formations.objects.all()
-    Donne_eleve = Eleve_class.objects.all() if 'rechercher' not in request.session else Eleve_class.objects.filter( Q(Nom__icontains=request.session['rechercher']['mot']) | Q(Prenom__icontains=request.session['rechercher']['mot']))
-    session_Formations_eleve = {}
+from typing import List,Set,Dict
 
-    for value in Donne_eleve:
-        session_Formations_eleve[str(value.id)] = {}
-        for formations_eleve in Formations_eleve.objects.filter(Eleve_choix=Eleve_class.objects.get(id = value.id)).all():
-            session_Formations_eleve[str(value.id)][str(formations_eleve.Formations.Nom)] = {'id_formations':formations_eleve.id,
-                    'Niveau':formations_eleve.Niveau,}
+def Eleve_fonctions(request):
+    # Récupère toutes les formations et élèves par défaut
+    Donne_formations = Formations.objects.all()
+    Donne_eleve = Eleve_class.objects.all()
+
+    # Vérifie s’il existe une session de recherche
+    print(request.session.get('rechercher', 'Aucune recherche active'))
+    if 'rechercher' in request.session:
+        criteres = request.session['rechercher']
+        filtres = {}
+        recherche_nom = None
+
+        for cle, valeur in criteres.items():
+            if isinstance(valeur, dict):
+                continue 
+            cle_norm = cle.lower()
+
+            if cle_norm == 'actif':
+                filtres['Status'] = valeur
+            elif cle_norm == 'droit':
+                filtres['Droit'] = valeur
+            elif cle_norm == 'dossier':
+                filtres['Dossier'] = valeur
+            elif cle_norm == 'nom':
+                recherche_nom = valeur
+        if len(filtres) > 0:
+            Donne_eleve = Eleve_class.objects.filter(**filtres)
+        if recherche_nom:
+            Donne_eleve = Donne_eleve.filter(
+                Q(Nom__icontains=recherche_nom) | Q(Prenom__icontains=recherche_nom)
+            )
+        print("Filtres appliqués :", filtres)
+        if recherche_nom:
+            print("Recherche par nom :", recherche_nom)
+    session_Formations_eleve: Dict[str, Dict[str, Dict]] = {}
+
+    for eleve in Donne_eleve:
+        session_Formations_eleve[str(eleve.id)] = {}
+        formations_associees = Formations_eleve.objects.filter(Eleve_choix=eleve)
+
+        for fe in formations_associees:
+            session_Formations_eleve[str(eleve.id)][fe.Formations.Nom] = {
+                'id_formations': fe.id,
+                'Niveau': fe.Niveau,
+            }
+
     request.session['avoir_le_bon_formations'] = session_Formations_eleve
     context = {
-        'Formations':Donne_formations,
-        'Eleve':Donne_eleve,
+        'Formations': Donne_formations,
+        'Eleve': Donne_eleve,
     }
-    return render(request,'Eleve.html',context)
+    return render(request, 'Eleve.html', context)
+
 
 def Ajout_Eleve_fonctions(request):
     for x in range(1,7):
@@ -49,7 +88,7 @@ def Ajout_Eleve_fonctions(request):
             valeur_final.append( int(duree_formations - (num * (duree_formations/Formationss.level_number))))
     if validator and doublure:
         if not Eleve_class.objects.filter(Nom=Nom,Prenom=Prenom).exists():
-            Ajout = Eleve_class(Nom=Nom,Prenom=Prenom,Droit=Droit,Dossier=Dossier,)
+            Ajout = Eleve_class(Nom=Nom,Prenom=Prenom,Droit=Droit,Dossier=Dossier,Numero=Numero)
             Ajout.save()
         # Niveau=Niveau,Formations=Formationss,Reste_mois=valeur_final[0]
         Eleve_formations_ajout = Formations_eleve(Formations=Formationss,Niveau=Niveau,Reste_mois=valeur_final[0],Eleve_choix=Eleve_class.objects.get(Nom=Nom,Prenom=Prenom))
@@ -88,7 +127,7 @@ def Ajout_Eleve_fonctions(request):
             new_liste.append(niveau_list[-take_take])
         
         for numerotation,valuer_month in enumerate(month_liste):
-            Mois_save = Mois_class(Nom=str(valuer_month),Eleve=Eleve_class.objects.get(Nom=Nom,Prenom=Prenom),Niveau=new_liste[numerotation],Formations=Formationss,Numero=Numero)
+            Mois_save = Mois_class(Nom=str(valuer_month),Eleve=Eleve_class.objects.get(Nom=Nom,Prenom=Prenom),Niveau=new_liste[numerotation],Formations=Formationss,)
             Mois_save.save()
         return redirect('http://127.0.0.1:8000/Emplois_du_temps/')
     return redirect('http://127.0.0.1:8000/Eleve/')
