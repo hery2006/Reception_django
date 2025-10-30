@@ -19,7 +19,7 @@ def recherche_fonctions_eleve(request):
     if request.method != 'POST' :
         return
     Phrase:str = request.POST['Recherche_text'].lower() if request.POST['Recherche_text'] != '' else False
-    messages.success(request,'Entrer un nom ou un Prenom pour trouver la personne et non vide') if not Phrase else True
+    messages.success(request,'Entrer quelque chose a rechercher pas vide !') if not Phrase else True
     valeur:Dict = {}
     valeur = Creation_regle_grammaticale(Phrase) if Phrase else False
     if Phrase:

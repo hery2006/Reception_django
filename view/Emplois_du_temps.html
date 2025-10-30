@@ -188,7 +188,7 @@
 </head>
 <body>
     
-    <section>
+    <section style="display: flex;">
         {% if messages %}
             {% for error in messages %}
                 <h1>{{ error }}</h1>
@@ -213,7 +213,7 @@
                     {% for value in Disponibiliter %}
                     <tbody>
                         <tr>
-                            <td rowspan="{{ request.session.user.rowspan }}">{{ value.Heure }}</td>
+                            <td rowspan="{{ rowspan }}">{{ value.Heure }}</td>
                             {% for record in boucle_niveau %}
                                 <td>{{ record.Niveaux }}</td>
 
@@ -348,27 +348,91 @@
                             <tr class="modif-btns">
                                 <!-- <td></td> -->
                                 <td>Modifications</td>
-                                <td><a href="{% url 'session' '1' value.Heure %}"><button>add</button></a>
-                                    <a href="{% url 'delete_session_E_d_T' '1'%}"><button>del</button></a></td>
-                                <td><a href="{% url 'session' '2' value.Heure %}"><button>add</button></a>
-                                    <a href="{% url 'delete_session_E_d_T' '2'%}"><button>del</button></a></td>
-                                <td><a href="{% url 'session' '3' value.Heure %}"><button>add</button></a>
-                                    <a href="{% url 'delete_session_E_d_T' '3'%}"><button>del</button></a></td>
-                                <td><a href="{% url 'session' '4' value.Heure %}"><button>add</button></a>
-                                    <a href="{% url 'delete_session_E_d_T' '4'%}"><button>del</button></a></td>
-                                <td><a href="{% url 'session' '5' value.Heure %}"><button>add</button></a>
-                                    <a href="{% url 'delete_session_E_d_T' '5'%}"><button>del</button></a></td>
-                                <td><a href="{% url 'session' '6' value.Heure %}"><button>add</button></a>
-                                    <a href="{% url 'delete_session_E_d_T' '6'%}"><button>del</button></a></td>
+                                <td><a href="{% url 'session' '1' value.Heure cles_unique  %}"><button>add</button></a>
+                                    <a href="{% url 'delete_session_E_d_T' '1' cles_unique %}"><button>del</button></a></td>
+                                <td><a href="{% url 'session' '2' value.Heure cles_unique %}"><button>add</button></a>
+                                    <a href="{% url 'delete_session_E_d_T' '2' cles_unique %}"><button>del</button></a></td>
+                                <td><a href="{% url 'session' '3' value.Heure cles_unique %}"><button>add</button></a>
+                                    <a href="{% url 'delete_session_E_d_T' '3' cles_unique %}"><button>del</button></a></td>
+                                <td><a href="{% url 'session' '4' value.Heure cles_unique %}"><button>add</button></a>
+                                    <a href="{% url 'delete_session_E_d_T' '4' cles_unique %}"><button>del</button></a></td>
+                                <td><a href="{% url 'session' '5' value.Heure cles_unique %}"><button>add</button></a>
+                                    <a href="{% url 'delete_session_E_d_T' '5' cles_unique %}"><button>del</button></a></td>
+                                <td><a href="{% url 'session' '6' value.Heure cles_unique %}"><button>add</button></a>
+                                    <a href="{% url 'delete_session_E_d_T' '6' cles_unique %}"><button>del</button></a></td>
                             </tr>
                     </tbody>
                     {% endfor %}
                 {% endif %}
             </table>
-
+            {% if not cles_unique %}
+              
             <a href="{% url 'enregistrement_E_d_T' %}">
+            {% else %}
+            <a href="{% url 'update_EDP_Groupe' cles_unique %}">
+            {% endif %}
                 <button class="validate-btn">✅ Valider l'emploi du temps</button>
             </a>
+        </div>
+        <div style="width: 50%;">
+            <table class="table_template_emplois_du_temps">
+                <thead>
+                    <tr>
+                            <th>Heure</th>
+                            <th>Lundi</th>
+                            <th>Mardi</th>
+                            <th>Mercredi</th>
+                            <th>Jeudi</th>
+                            <th>Vendredi</th>
+                            <th>Samedi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for heure in Disponibiliter %}
+                            <tr>
+                                <td>{{ heure.Heure }}</td>
+                                {% for jour, data in emplois.items %}
+                                    {% if data|get_value:heure.Heure == "Libre" %}
+                                        <td>Libre</td>
+                                    {% else %}
+                                        {% with info=data|get_value:heure.Heure %}
+                                            <td>
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            {% for Formations_t ,value_for in request.session.formations_table.items %}
+                                                                <th>{{Formations_t}}</th>
+                                                            {% endfor %}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            {% for Formations_t ,value_for in request.session.formations_table.items %}
+                                                                <td>
+                                                                    {% for boucle in info %}
+                                                                        {% with valeur_info=boucle|get_value:Formations_t %}
+                                                                            {% if valeur_info %}
+                                                                                {% if boucle.nombre ==  0%}
+                                                                                Libre
+                                                                                {% else %}
+                                                                                    <h4>nombre d'élèves {{ boucle.nombre }}</h4>
+                                                                                {% endif %}
+                                                                            {% endif %}
+                                                                        {% endwith %}
+                                                                    {% endfor %}
+                                                                </td>
+                                                            {% endfor %}
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        {% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+            </table>
         </div>
     </section>
     {% if request.session.valid_ecolage.valid %}
@@ -384,6 +448,10 @@
                 <div>
                     <label for=""> {{ valeur.Nom }} </label>
                     <h3> {{valeur.Niveau}} </h3>
+                    <div style="flex:1">
+                            <label for="" style="font-size:13px">Numero de facture</label>
+                            <input type="text" name="Numero_fa">
+                    </div>
                     <input type="number" name="ecolage_value">
                     <select name="Validations_payement" id="">
                         <option value="False">Non Payer</option>

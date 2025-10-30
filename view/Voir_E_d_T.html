@@ -118,39 +118,45 @@ button:hover {
     <table>
         <thead>
             <tr>
-                <th colspan="{{ request.session.title.len }}">Formations: {{ request.session.title.title }}</th>
+                <th colspan="{{ request.session.title.len }}">Formations: </th>
             </tr>
             <tr>
                 <th>Prénom élève</th>
-                <th>Niveau</th>
-                <th>Heure</th>
-                <th colspan="{{ request.session.len_date.len }}">Jours Choisis</th>
+                <!-- <th>Heure</th> -->
+                <th colspan="{{ colspan }}">Emplois du temps</th>
             </tr>
         </thead>
         <tbody>
-            {% for Nom, Donnee in valeur2.items %}
+            {% for Nom,Donnee in emplois.items %}
                 <tr>
-                {% with validator=request.session.voir|get_value:Nom %}
-                    {% if validator %}
-                        <td>{{ Nom }}</td>
-                        {% if request.session.niveau|get_value:Nom %}
-                            {% with niveau=request.session.niveau|get_value:Nom %}
-                                <td>{{ niveau.Niveau }}</td>
-                                <td>{{ niveau.heure }}</td>
-                            {% endwith %}
-                        {% endif %}
-                        {% for _, Donnee2 in Donnee.items %}
-                            <td>{{ Donnee2.Jours }}</td>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                    <td>{{ Nom }}</td>
+                    {% for valeur in Donnee %}  
+                    <td>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Jours</th>
+                                        <th>Heure</th>
+                                        <th>Niveau</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ valeur.jours }}</td>
+                                        <td>{{ valeur.heure }}</td>
+                                        <td>{{ valeur.Niveau }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    {% endfor %}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
     <div style="text-align: center;">
-        <a href="">
+        <a href="{% url 'E_d_T' cles_unique %}">
             <button>Modifications Groupées</button>
         </a>
     </div>

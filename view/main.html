@@ -314,7 +314,7 @@ body {
                     <img src="" alt="">
                     <h2>Liste des professeurs</h2>
                     <h4>Le nombre d'heures des professeurs a augmenté de 6%</h4>
-                    <a href="">
+                    <a href="{% url 'Prof_main' %}">
                         <button>Voir</button>
                     </a>
                 </div>
@@ -333,8 +333,8 @@ body {
             {% endfor %}
         {% endif %}
         <table class="table_template_emplois_du_temps">
-            <thead>
-                <tr>
+        <thead>
+            <tr>
                     <th>Heure</th>
                     <th>Lundi</th>
                     <th>Mardi</th>
@@ -369,10 +369,14 @@ body {
                                                             {% for boucle in info %}
                                                                 {% with valeur_info=boucle|get_value:Formations_t %}
                                                                     {% if valeur_info %}
-                                                                        <h4>nombre d'élèves {{ boucle.nombre }}</h4>
-                                                                        <a href="{% url 'V_E_d_t' boucle.id heure.Heure %}">
-                                                                            <button>Voir</button>
-                                                                        </a>
+                                                                        {% if boucle.nombre ==  0%}
+                                                                        Libre
+                                                                        {% else %}
+                                                                            <h4>nombre d'élèves {{ boucle.nombre }}</h4>
+                                                                            <a href="{% url 'V_E_d_t' boucle.cles_unique %}">
+                                                                                <button>Voir</button>
+                                                                            </a>
+                                                                        {% endif %}
                                                                     {% endif %}
                                                                 {% endwith %}
                                                             {% endfor %}

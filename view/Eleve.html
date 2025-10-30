@@ -130,6 +130,24 @@ form button:hover {background:#1fa89a;}
                 </select>
             </div>
             <div>
+                <label for="Niveau">Mois debut cours :</label>
+                <select name="Mois" id=""> 
+                    <option value="">-- Choisir un mois --</option> 
+                    <option value="1">Janvier</option>
+                    <option value="2">Fevrier</option>
+                    <option value="3">Mars</option>
+                    <option value="4">Avril</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Juin</option>
+                    <option value="7">Juillet</option>
+                    <option value="8">Aout</option>
+                    <option value="9">Septembre</option>
+                    <option value="10">Octobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Decembre</option>
+                </select>
+            </div>
+            <div>
                 <label for="Numero">Numero :</label>
                 <input type="text" placeholder="Numero de telephone" name="Numero" id="Numero" required>
             </div>
@@ -171,7 +189,7 @@ form button:hover {background:#1fa89a;}
                             <tr>
                                 <td data-label="Nom">{{ value.Nom }}</td>
                                 <td data-label="Prénom">{{ value.Prenom }}</td>
-                                <td data-label="Droit">{{ value.Droit|yesno:"Payer,Non payer" }}</td>
+                                <td data-label="Droit">{{ value.Droit|yesno:"Paye,Non paye" }}</td>
                                 <td>  {{ value.Numero }}  </td>
                                 <td data-label="Dossier">{{ value.Dossier|yesno:"Complet,Pas encore complet" }}</td>
                                 <td {% if value.Status == True %}

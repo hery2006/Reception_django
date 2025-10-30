@@ -1,44 +1,52 @@
-from django.shortcuts import render,redirect,get_object_or_404
+
+from django.shortcuts import render,redirect
 from Eleve.models import *
-from django.http import HttpResponseRedirect
-from difflib import SequenceMatcher
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
 from typing import List,Set,Dict
-
 def Eleve_fonctions(request):
     # Récupère toutes les formations et élèves par défaut
     Donne_formations = Formations.objects.all()
     Donne_eleve = Eleve_class.objects.all()
+    Donne_Formations_eleve = Formations_eleve.objects.all()
 
     # Vérifie s’il existe une session de recherche
     print(request.session.get('rechercher', 'Aucune recherche active'))
     if 'rechercher' in request.session:
         criteres = request.session['rechercher']
-        filtres = {}
+        filtres_eleves:Dict = {}
+        filtres_formations:Dict = {}
         recherche_nom = None
-
+        final_value = []
+        All_formations:List[str] = [x.Nom.lower() for x in Donne_formations]
+        print(All_formations)
         for cle, valeur in criteres.items():
             if isinstance(valeur, dict):
                 continue 
-            cle_norm = cle.lower()
-
+            cle_norm:str = cle.lower()
             if cle_norm == 'actif':
-                filtres['Status'] = valeur
+                filtres_eleves['Status'] = valeur
             elif cle_norm == 'droit':
-                filtres['Droit'] = valeur
+                filtres_eleves['Droit'] = valeur
             elif cle_norm == 'dossier':
-                filtres['Dossier'] = valeur
+                filtres_eleves['Dossier'] = valeur
+            elif cle_norm in All_formations:
+                filtres_formations['Nom'] = cle_norm 
             elif cle_norm == 'nom':
                 recherche_nom = valeur
-        if len(filtres) > 0:
-            Donne_eleve = Eleve_class.objects.filter(**filtres)
+        if len(filtres_eleves) > 0 or len(filtres_formations):
+            liste_id = [x.Eleve_choix.id for x in Donne_Formations_eleve] if len(filtres_formations) == 0 else [x.Eleve_choix.id for x in Donne_Formations_eleve.filter(Formations = Formations.objects.filter(Q(Nom__icontains = filtres_formations['Nom'])).first().id)]
+            # print('voici la liste des id ==>',len(filtres_formations))
+            boucle = Eleve_class.objects.filter(**filtres_eleves) if len(filtres_eleves) > 0 else Donne_eleve
+            for i in  boucle:
+                if i.id in liste_id:
+                    final_value.append(Eleve_class.objects.get(id = i.id))
         if recherche_nom:
             Donne_eleve = Donne_eleve.filter(
                 Q(Nom__icontains=recherche_nom) | Q(Prenom__icontains=recherche_nom)
             )
-        print("Filtres appliqués :", filtres)
+        print("Filtres appliqués :", filtres_eleves ,' et voici les recherche selon la formations',filtres_formations)
         if recherche_nom:
             print("Recherche par nom :", recherche_nom)
     session_Formations_eleve: Dict[str, Dict[str, Dict]] = {}
@@ -56,10 +64,9 @@ def Eleve_fonctions(request):
     request.session['avoir_le_bon_formations'] = session_Formations_eleve
     context = {
         'Formations': Donne_formations,
-        'Eleve': Donne_eleve,
+        'Eleve': final_value if 'rechercher' in request.session else Donne_eleve,
     }
     return render(request, 'Eleve.html', context)
-
 
 def Ajout_Eleve_fonctions(request):
     for x in range(1,7):
@@ -79,6 +86,8 @@ def Ajout_Eleve_fonctions(request):
     # effiter doublure de nom ou de prenom
     doublure = False if Eleve_class.objects.filter(Nom=Nom,Prenom=Prenom).exists() and int(Formationss.id) in [int(x.Formations.id) for x in Formations_eleve.objects.filter(Eleve_choix=Eleve_class.objects.get(Nom=Nom,Prenom=Prenom)).all()] else True
     messages.success(request,'Cette eleve excerce dejas la meme formations donc vous ne pouvez pas l\'ajouter. change le pour pouvoir le reenregistrer mercie ') if not doublure else True
+    Mois = request.POST['Mois'] if request.POST['Mois'] != '' else False
+
     # avoir automatiquement le nombre de mois restant pour l'eleve selon le choix
     duree_formations = Formationss.duree if Formationss else False
     listage = [x.Niveaux for x in Niveau_Par_Formations.objects.filter(FK_formations = Formationss)] if Formationss else False
@@ -99,7 +108,9 @@ def Ajout_Eleve_fonctions(request):
                                   'rowspan':Formationss.level_number + 1}
         # creations automatique de tous les mois ou il doit payer l'ecolage
         MOIS = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre']
-        month_value = int(timezone.now().month) - 2
+        month = int(timezone.now().month) - 2
+        month_value = month if not Mois else (int(Mois) - 2)
+
         stop = int(Formations_eleve.objects.get(Eleve_choix = Eleve_class.objects.get(Nom=Nom,Prenom=Prenom),Formations=Formationss).Reste_mois)
         Non_change_niveau = int((Formationss.duree/Formationss.level_number))
         stop_lost = 0
@@ -129,7 +140,7 @@ def Ajout_Eleve_fonctions(request):
         for numerotation,valuer_month in enumerate(month_liste):
             Mois_save = Mois_class(Nom=str(valuer_month),Eleve=Eleve_class.objects.get(Nom=Nom,Prenom=Prenom),Niveau=new_liste[numerotation],Formations=Formationss,)
             Mois_save.save()
-        return redirect('http://127.0.0.1:8000/Emplois_du_temps/')
+        return redirect(f'http://127.0.0.1:8000/Emplois_du_temps/{'False'}/')
     return redirect('http://127.0.0.1:8000/Eleve/')
 
 def delete_eleve(request,id):
@@ -140,6 +151,7 @@ def See_eleve(request,id,id_f):
     session = {}
     donne_eleve = Eleve_class.objects.get(id=id)
     donne_du_formations = Formations_eleve.objects.get(id=id_f)
+    niveau = Niveau_Par_Formations.objects.filter(FK_formations = donne_du_formations.Formations.id).all()
     session['Eleve'] = {'id': id,
         "nom":donne_eleve.Nom,
         "Prenom":donne_eleve.Prenom,
@@ -155,6 +167,8 @@ def See_eleve(request,id,id_f):
     context = {
         'Formations':Formations.objects.all(),
         'Payement':Payement,
+        'Eleve_id':id,
+        'Niveau':niveau,
     }
     # avoir l'emplois du temps personnel de chaque id 
     Session_emplois_du_temps = {}

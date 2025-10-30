@@ -2,6 +2,7 @@ import re
 import unicodedata
 from difflib import get_close_matches, SequenceMatcher
 from typing import List, Dict, Set, Optional
+from Eleve.models import Formations,Niveau_Par_Formations
 VOCAB = {
     "droit": "droit",
     "droits": "droit",
@@ -18,11 +19,19 @@ VOCAB = {
     'complete':True,
     'incomplet':False,
     'et':'et',
-    'ou':'et'
+    'ou':'et',
+    'plus':False,
 }
+# prochaine etape . faire une 
 Vocabulaire:Set[str] = set()
 for cles,valeur in VOCAB.items():
     Vocabulaire.add(cles)
+def ajouter_autre_donnees(Data:Dict,new_items:Set[str]) -> Dict:
+    All_formations = Formations.objects.all()
+    for value in All_formations:
+        Data.update({str(value.Nom).lower():str(value.Nom).lower()})
+        new_items.add(str(value.Nom).lower())
+    return Data,new_items
 def Segmentation(text:str,Vocabulaire:Set[str],max_len:int = 40) -> List[str]:
     i = 0
     mot = text.strip()
@@ -51,11 +60,7 @@ def Sentence_transformers(dictionnaire:Dict[str,str],Conditionnement:bool,Boucle
         for num,valeur in enumerate(phrase):
             if valeur.lower() in items_value:
                 final[valeur] = final_value
-
     return final
-
-
-
 def Creation_regle_grammaticale(phrase:str,Vocab:Dict = VOCAB,items_list:List[str] = Vocabulaire) -> Dict:
     # creation simple de comprehesion de de phrase c'est a dire, comprendre la structure glogale d'une Phrase simple et une Phrase qui represente 2 ou plus de condition
     tr = phrase.lower()
@@ -63,8 +68,8 @@ def Creation_regle_grammaticale(phrase:str,Vocab:Dict = VOCAB,items_list:List[st
     tr = ''.join(v for v in tr if not unicodedata.combining(v))
     tr = re.sub(r',', ' et ', tr)
     tr = re.sub(r"[^a-z0-9\s]",'',tr)
-    # conditionnement du code
     tr = re.sub(r'\s+',' ',tr).strip()
+    ajouter_autre_donnees(VOCAB,new_items=Vocabulaire)
     # conditionnement du code.
     False_statue = True
     listage:List[str] = tr.split()
@@ -127,4 +132,3 @@ def Creation_regle_grammaticale(phrase:str,Vocab:Dict = VOCAB,items_list:List[st
     if len(first_result) == 0 :
         final:Dict = {'nom':tr}
     return final
-# je veux voir les eleves avec des droit non payer et qui sont actif et qui ont les dossier bien complet

@@ -20,9 +20,10 @@ urlpatterns=[
     # enregistrement ecolage
     path('Ecolage/enregistrement/',Enregistrement_ecolage,name='Ecolage_save'),
     path('Modification/Ecolage/',Modifier_ecolage,name='Modif_ecolage_state'),
+    path('Fail/Study/<int:id>/',Add_new_month,name='Add_eleve_fail_month'),
     # emplois du temps
-    path('Emplois_du_temps/',emplois_du_temps,name='E_d_T'),
-    path("session_ET/<int:jours>/<str:heure>/",Creations_session_emplois,name="session"),
-    path('Delete/<int:jours>/',delete_session_emplois_temps,name='delete_session_E_d_T'),
+    path('Emplois_du_temps/<str:cles_unique>/',emplois_du_temps,name='E_d_T'),
+    path("session_ET/<int:jours>/<str:heure>/<str:cles_unique>/",Creations_session_emplois,name="session"),
+    path('Delete/<int:jours>/<str:cles_unique>/',delete_session_emplois_temps,name='delete_session_E_d_T'),
     path('enregistrement/Emplois_du_temps/',Enregistrement_E_d_T,name='enregistrement_E_d_T'),
 ]

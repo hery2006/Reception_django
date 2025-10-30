@@ -29,8 +29,9 @@ class Formations_eleve(models.Model):
 class Mois_class(models.Model):
     Nom = models.CharField()
     Ecolage = models.BooleanField(default=False)
+    Numero_fa = models.CharField()
     Eleve = models.ForeignKey(Eleve_class,on_delete=models.CASCADE)
-    Ecolage_payer = models.FloatField(default=0)
+    Ecolage_payer = models.FloatField(default=False)
     Niveau = models.CharField()
     Formations = models.ForeignKey(Formations,on_delete=models.CASCADE)
 
@@ -44,6 +45,7 @@ class Emplois_du_temps(models.Model):
     Jour_de_la_semaine = models.CharField()
     Eleve = models.ForeignKey(Eleve_class,on_delete=models.CASCADE)
     Niveau = models.CharField()
+    cles_unique = models.CharField()
 
 class Niveau_Par_Formations(models.Model):
     FK_formations = models.ForeignKey(Formations,on_delete=models.CASCADE)
