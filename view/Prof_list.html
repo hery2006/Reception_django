@@ -1,0 +1,222 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Professeurs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        body {
+            background-color: #0d1416;
+            color: #dcdcdc;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: orange;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .recherche_prof {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .recherche_prof input {
+            width: 250px;
+            padding: 8px;
+            border: 2px solid orange;
+            border-radius: 10px 0 0 10px;
+            background-color: #022b36;
+            color: white;
+            outline: none;
+        }
+        .recherche_prof button {
+            padding: 8px 12px;
+            background-color: rgba(0,255,255,0.2);
+            color: orange;
+            border: 2px solid orange;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .recherche_prof button:hover {
+            background-color: aqua;
+            color: #0d1416;
+        }
+        table {
+            width: 95%;
+            margin: auto;
+            border-collapse: collapse;
+            background-color: #012229;
+            border: 2px solid orange;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        thead {
+            background-color: rgba(255, 166, 0, 0.2);
+        }
+        th, td {
+            border: 1px solid rgba(255, 166, 0, 0.3);
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            color: orange;
+            font-weight: bold;
+        }
+        td input, td select {
+            background-color: #0d1416;
+            color: white;
+            border: 1px solid orange;
+            border-radius: 8px;
+            text-align: center;
+            padding: 4px;
+            width: 100%;
+        }
+        td input:focus, td select:focus {
+            outline: none;
+            border-color: aqua;
+            background-color: #02323f;
+        }
+        button[type="submit"] {
+            background-color: rgba(0,255,255,0.2);
+            color: orange;
+            border: 1px solid orange;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: aqua;
+            color: #0d1416;
+            font-weight: bold;
+        }
+        a.delete-btn {
+            background-color: rgba(255,0,0,0.3);
+            color: white;
+            border: 1px solid red;
+            padding: 6px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+        a.delete-btn:hover {
+            background-color: red;
+            color: #0d1416;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: rgba(0,255,255,0.05);
+        }
+        .message {
+            text-align: center;
+            color: aqua;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .liste_table {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <h1>Liste des Professeurs</h1>
+
+        <div class="recherche_prof">
+            <form action="" method="post">
+                {% csrf_token %}
+                <input type="text" name="recherche" placeholder="Rechercher un professeur...">
+                <button type="submit">🔍</button>
+            </form>
+        </div>
+
+        {% if messages %}
+            {% for m in messages %}
+                <div class="message">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="liste_table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>CIN</th>
+                        <th>Durée du Contrat</th>
+                        <th>Salaire/Heure</th>
+                        <th>Status</th>
+                        <th>Formation</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in DB_prof %}
+                    <form action="{% url 'Prof_update_liste' i.id %}" method="post">
+                        {% csrf_token %}
+                        <tr>
+                            <td><input type="text" name="Nom_{{i.id}}" value="{{ i.Nom }}"></td>
+                            <td><input type="text" name="Prenom_{{i.id}}" value="{{ i.Prenom }}"></td>
+                            <td><input type="text" name="CIN_{{i.id}}" value="{{ i.Cin }}"></td>
+                            <td><input type="number" name="Contrat_{{i.id}}" value="{{ i.Duree }}"></td>
+                            <td><input type="number" name="Payement_{{i.id}}" value="{{ i.Payement }}"></td>
+
+                            <td>
+                                <select name="Status_{{i.id}}" id="Status_{{i.id}}">
+                                    <option value="True">Actif</option>
+                                    <option value="False">Non Actif</option>
+                                </select>
+                            </td>
+
+                            <td>
+                                <select name="Formations_{{i.id}}" id="Formations_{{i.id}}">
+                                    {% for j in Formations %}
+                                        <option value="{{ j.id }}">{{ j.Nom }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+
+                            <td>
+                                <button type="submit">💾</button>
+                                <a href="#" class="delete-btn">🗑</a>
+                            </td>
+                        </tr>
+                    </form>
+                    {% empty %}
+                    <tr><td colspan="8">Aucun professeur enregistré.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script>
+        (function hery(){
+            {% for n in DB_prof %}
+                (function () {
+                    const Stat = document.getElementById('Status_{{ n.id }}');
+                    const formations = document.getElementById('Formations_{{n.id}}')
+                    {% if n.Status == True %}
+                        Stat.value = '{{n.Status}}'
+                        Stat.style.backgroundColor = "green"
+                    {% else %}
+                        Stat.value = '{{n.Status}}'
+                        Stat.style.backgroundColor = 'red'
+                    {% endif %}
+                    formations.value = "{{n.Types_formation.id}}"
+                })();
+            {% endfor %}
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement - {{ Nom }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            padding: 40px;
+            text-align: center;
+        }
+        section {
+            background-color: #222;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,255,255,0.2);
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            color: aquamarine;
+            margin-bottom: 25px;
+        }
+        form div {
+            margin: 15px 0;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            background-color: #333;
+            color: white;
+        }
+        select option {
+            background-color: #333;
+            color: white;
+        }
+        button {
+            background-color: aquamarine;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #00c8a7;
+        }
+        h4 {
+            margin-top: 20px;
+            color: #ffd700;
+            font-size: 18px;
+        }
+        h1, h4, label {
+            user-select: none;
+        }
+        .message {
+            background-color: #333;
+            padding: 10px;
+            border-left: 4px solid aquamarine;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        {% if messages %}
+            {% for m in messages %}
+                <div class="message">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <h1>Paiement du mois de Novembre pour <span style="color: #ffd700;">{{ Nom }}</span></h1>
+
+        <form action="{% url 'Update_prof_p' PP_id %}" method="post">
+            {% csrf_token %}
+            <div>
+                <label>Nombre de jours de travail</label>
+                <input type="number" name="Work_day" id="Work_day" value="{{ Work_day }}">
+            </div>
+            <div>
+                <label>Heures par jour</label>
+                <input type="number" name="Seance_Hours" id="Seance_Hours" value="{{ Seance }}">
+            </div>
+            <div>
+                <label>Observations</label>
+                <input type="text" name="Observations" value="{{ Obs }}">
+            </div>
+            <div>
+                <label>Status</label>
+                <select name="Status" id="Status">
+                    <option value="False" {% if not Status %}selected{% endif %}>Non payé</option>
+                    <option value="True" {% if Status %}selected{% endif %}>Payé</option>
+                </select>
+            </div>
+            <button type="submit">Valider</button>
+            <h4 id="Prof_salary">Total à payer ⇒ 0</h4>
+        </form>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const days = document.getElementById('Work_day');
+            const hours = document.getElementById('Seance_Hours');
+            const salary = document.getElementById('Prof_salary');
+
+            function updateSalary() {
+                const total = (Number(days.value) || 0) * (Number(hours.value) || 0);
+                salary.textContent = "Total à payer ⇒ " + total.toLocaleString('fr-FR') + " Ar";
+            }
+
+            // Écouteurs d'événements
+            days.addEventListener('input', updateSalary);
+            hours.addEventListener('input', updateSalary);
+
+            // Calcul initial au chargement
+            updateSalary();
+        });
+    </script>
+</body>
+</html>

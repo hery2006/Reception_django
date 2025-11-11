@@ -1,0 +1,204 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des mois de paiement</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #0b1214;
+            color: #f1f1f1;
+            overflow-x: hidden;
+        }
+
+        section {
+            width: 100%;
+            min-height: 100vh;
+            padding: 40px 60px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: orange;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px rgba(255,165,0,0.4);
+        }
+
+        .Annees, .Mois {
+            margin: 25px auto;
+            text-align: center;
+        }
+
+        .Annees button {
+            background-color: rgba(255,165,0,0.15);
+            border: 2px solid orange;
+            border-radius: 10px;
+            padding: 10px 20px;
+            margin: 8px;
+            color: #f1f1f1;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .Annees button:hover {
+            background-color: orange;
+            color: #0b1214;
+            transform: scale(1.05);
+        }
+
+        .Annees button[style*="aquamarine"] {
+            background-color: aquamarine !important;
+            color: #0b1214;
+            border-color: cyan;
+        }
+
+        .Mois {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .Mois a {
+            background-color: #121a1c;
+            border: 1px solid rgba(255,165,0,0.4);
+            border-radius: 10px;
+            color: orange;
+            padding: 10px 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .Mois a:hover {
+            background-color: cyan;
+            color: #0b1214;
+            transform: scale(1.05);
+        }
+
+        .Mois a[style*="rgb(45, 45, 97)"] {
+            background-color: rgb(45,45,97) !important;
+            color: cyan !important;
+            border: 1px solid cyan;
+            transform: scale(1.05);
+        }
+
+        /* --- Liste des paiements --- */
+        .Paiements {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .Paiements div {
+            background: #121a1c;
+            border: 2px solid rgba(255,165,0,0.4);
+            border-radius: 12px;
+            padding: 15px 20px;
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .Paiements div:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(255,165,0,0.3);
+        }
+
+        .Paiements label {
+            font-size: 1rem;
+            color: cyan;
+            font-weight: 600;
+        }
+
+        .Paiements button {
+            padding: 8px 20px;
+            border: none;
+            background: linear-gradient(90deg, orange, #ffb347);
+            color: #0b1214;
+            font-weight: 700;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .Paiements button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255,165,0,0.6);
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 25px;
+            }
+            .Paiements div {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <h1>Catégorisation par mois et par année</h1>
+
+        <div class="Annees">
+            <h2>Sélection de l'année</h2>
+            {% for i in Annee %}
+                <a href="{% url 'Prof_payement' i.id '0' %}">
+                    <button {% if i.id == yid %} style="background-color: aquamarine;" {% endif %}>
+                        Année {{ i.Annee }}
+                    </button>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="Mois">
+            <h2>Liste des mois</h2>
+            {% for i in Mois %}
+                <a href="{% url 'Prof_payement' i.Years_reference.id i.id %}"
+                    {% if i.id == mid %}
+                        style="background-color: rgb(45, 45, 97);color: black;"
+                    {% endif %}
+                >
+                    Mois de {{ i.Mois }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="Paiements">
+            {% for j in PDB %}
+                <div>
+                    <label>{{ j.Prof_id.Nom }} {{ j.Prof_id.Prenom }}</label>
+                    <a href="{% url 'Pages_payement_modif' j.id %}">
+                        <button>Payer</button>
+                    </a>
+                </div>
+            {% empty %}
+                <p style="text-align:center; color: #aaa;">Aucun professeur à payer pour cette période.</p>
+            {% endfor %}
+        </div>
+    </section>
+</body>
+</html>

@@ -7,6 +7,7 @@ class Formations(models.Model):
     Ecolage = models.IntegerField()
     Type_Formations = models.CharField()
     cours_semaine = models.IntegerField()
+    Droit = models.IntegerField(default=30000)
 
 
 class Eleve_class(models.Model):
@@ -46,6 +47,8 @@ class Emplois_du_temps(models.Model):
     Eleve = models.ForeignKey(Eleve_class,on_delete=models.CASCADE)
     Niveau = models.CharField()
     cles_unique = models.CharField()
+    Status = models.BooleanField(default=True)
+
 
 class Niveau_Par_Formations(models.Model):
     FK_formations = models.ForeignKey(Formations,on_delete=models.CASCADE)

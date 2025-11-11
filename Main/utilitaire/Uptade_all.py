@@ -23,7 +23,7 @@ def Update_all(request,cles_unique:str,Eleve_number:int) ->render:
             change_cles_unique.append(heure_append)
             change_cles_unique.append(formations_id)
     Conditionnement:bool = True if len(jours_choices) == Emplois_du_temps.objects.filter(cles_unique = cles_unique).first().type_de_Formations.cours_semaine else False
-    messages.warning(request,f'Le cours en question ne depasse pas les {Emplois_du_temps.objects.filter(cles_unique = cles_unique).first().type_de_Formations.cours_semaine} pas semaine merci !') if Conditionnement else False
+    messages.warning(request,f'Le cours en question ne depasse pas les {Emplois_du_temps.objects.filter(cles_unique = cles_unique).first().type_de_Formations.cours_semaine} par semaine merci !') if Conditionnement else False
     jours_already_choice:List[str] = sorted(list(set([ i.Jour_de_la_semaine for i in Emplois_du_temps.objects.filter(cles_unique=cles_unique).all()])))
     text_decodage = ''.join(str(x) for x in change_cles_unique)
     new_cles_unique:str = cryptage_text(text_decodage)

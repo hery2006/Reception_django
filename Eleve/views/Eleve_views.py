@@ -64,7 +64,7 @@ def Eleve_fonctions(request):
     request.session['avoir_le_bon_formations'] = session_Formations_eleve
     context = {
         'Formations': Donne_formations,
-        'Eleve': final_value if 'rechercher' in request.session else Donne_eleve,
+        'Eleve': (Donne_eleve if recherche_nom else final_value) if 'rechercher' in request.session else Donne_eleve,
     }
     return render(request, 'Eleve.html', context)
 
@@ -104,6 +104,7 @@ def Ajout_Eleve_fonctions(request):
         Eleve_formations_ajout.save()
         request.session['user'] ={"id":Eleve_class.objects.get(Nom=Nom,Prenom=Prenom).id,
                                   "Formations_id":int(request.POST['Formations']),
+                                  'Status':Eleve_class.objects.get(Nom=Nom,Prenom=Prenom).Status,
                                   'Niveau':Niveau,
                                   'rowspan':Formationss.level_number + 1}
         # creations automatique de tous les mois ou il doit payer l'ecolage
@@ -213,8 +214,12 @@ def Modifier_eleve_Donne(request,id):
 
     if not Verif_ecolage:
         Eleve_class.objects.filter(id=id).update(Status=Activition)
+        Emplois_du_temps.objects.filter(Eleve=id).update(Status = Activition)
     if validator and doublure and Actif_eleve and verif_Formations:
+        Emplois_du_temps.objects.filter(Eleve=id).update(Status = Activition)
         Ajout = Eleve_class.objects.filter(id=id).update(Nom=Nom,Prenom=Prenom,Droit=Droit,Dossier=Dossier,Status=Activition,Numero=Numero)
+        Formations_eleve.objects.filter(Eleve_choix = id,Formations=Formationss).update(Niveau = Niveau)
+        Emplois_du_temps.objects.filter(Eleve = id,type_de_Formations = Formationss).update(Niveau = Niveau )
         request.session['user'] ={"id":id,
                                 "Formations_id":int(request.POST['Formations']),
                                 'Niveau':Niveau,

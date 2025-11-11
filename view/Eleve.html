@@ -89,12 +89,12 @@ form button:hover {background:#1fa89a;}
 
             <div>
                 <label for="Nom">Nom :</label>
-                <input type="text" placeholder="Nom" name="Nom" id="Nom" required>
+                <input type="text" placeholder="Nom" name="Nom" id="Nom" required value="{{ request.session.Add_new.Nom }}">
             </div>
 
             <div>
                 <label for="Prenom">Prénom :</label>
-                <input type="text" placeholder="Prénom" name="Prenom" id="Prenom" required>
+                <input type="text" placeholder="Prénom" name="Prenom" id="Prenom" required value="{{ request.session.Add_new.Prenom }}">
             </div>
 
             <div>
@@ -228,7 +228,7 @@ form button:hover {background:#1fa89a;}
                                                 {% endwith %}
                                             </tbody>
                                         </table>
-                                        <a href="#"><button>Ajouter</button></a>
+                                        <a href="{% url 'Add_new_formations' value.id %}"><button>Ajouter</button></a>
                                 </td>
                                 <td data-label="Actions">
                                     <a href="{% url 'Delete_eleve' value.id %}">

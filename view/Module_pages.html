@@ -1,0 +1,268 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modules {{ Name }}</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+
+    body {
+        background-color: #0b1214;
+        color: #f1f1f1;
+        line-height: 1.5;
+        overflow-x: hidden;
+    }
+
+    section {
+        width: 100%;
+        min-height: 100vh;
+        padding: 30px 50px;
+    }
+
+    .Table_modules h1 {
+        text-transform: uppercase;
+        color: orange;
+        text-align: center;
+        letter-spacing: 2px;
+        margin-bottom: 25px;
+        font-size: 2rem;
+        text-shadow: 0 0 10px rgba(255,165,0,0.3);
+    }
+
+    .categorisation {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+
+    .categorisation div {
+        flex: 1 1 300px;
+        background: #121a1c;
+        border: 2px solid rgba(255,165,0,0.5);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(255,165,0,0.2);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .categorisation div:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 25px rgba(255,165,0,0.4);
+    }
+
+    .categorisation div h2 {
+        text-align: center;
+        color: #00ffff;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        text-shadow: 0 0 6px rgba(0,255,255,0.3);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+
+    thead {
+        background-color: rgba(255,165,0,0.1);
+    }
+
+    th, td {
+        border: 1px solid rgba(255,165,0,0.3);
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        color: orange;
+        text-transform: uppercase;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    td {
+        color: #eee;
+    }
+
+    td a {
+        display: inline-block;
+        padding: 6px 10px;
+        background-color: rgba(0,255,255,0.1);
+        color: orange;
+        font-weight: bold;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    td a:hover {
+        background-color: cyan;
+        color: #0b1214;
+        transform: scale(1.05);
+    }
+
+    input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: orange;
+        cursor: pointer;
+    }
+
+    form button {
+        display: block;
+        margin: 15px auto 0;
+        padding: 10px 25px;
+        border: none;
+        background: linear-gradient(90deg, orange, #ffb347);
+        color: #0b1214;
+        font-weight: 700;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    form button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(255,165,0,0.7);
+    }
+
+    .graphique {
+        margin-top: 50px;
+        text-align: center;
+        padding: 30px;
+        background: #121a1c;
+        border-radius: 10px;
+        border: 2px solid rgba(255,165,0,0.3);
+        box-shadow: 0 0 15px rgba(0,255,255,0.15);
+    }
+
+    .graphique h2 {
+        color: #00ffff;
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+        text-shadow: 0 0 6px rgba(0,255,255,0.3);
+    }
+
+    canvas {
+        width: 100% !important;
+        max-width: 800px;
+        margin: 0 auto;
+        display: block;
+    }
+
+    /* messages Django */
+    .Table_modules h1 + div h1 {
+        color: #ffb347;
+        text-align: center;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+</style>
+
+</head>
+<body>
+    <section>
+        <div class="Table_modules">
+            <h1 style="text-align: center;">Liste Eleve sur le module</h1>
+            <div class="categorisation" style="display: flex;justify-content: space-around;">
+                {% if messages %}
+                        {% for sms in messages %}
+                          <h1>{{ sms }}</h1>
+                        {% endfor %}
+                    {% endif %}
+                {% for i,j in Boucle.items %}
+                <div >
+                    <h2>{{ i }}</h2>
+                    <form action="{% url 'Pass_level' Module_id i %}" method="post">
+                        {% csrf_token %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Nom</th>
+                                    <th>Prenom</th>
+                                    <th>Voir</th>
+                                    <th>
+                                        all
+                                        <input type="checkbox" class="select-all" data-level="{{ forloop.counter }}">
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if j %}
+                                    {% for n in j %}
+                                        <tr>
+                                            <td>{{ n.Eleve_choix.id }}</td>
+                                            <td>{{n.Eleve_choix.Nom}}</td>
+                                            <td>{{ n.Eleve_choix.Prenom }}</td>
+                                            <td><a href="{% url 'See_eleve_urls' n.Eleve_choix.id n.id %}">voir</a></td>
+                                            <td><input type="checkbox" 
+                                                    name="checkbox_{{i}}" 
+                                                    class="select-item level-{{ forloop.parentloop.counter }}" 
+                                                    value="{{ n.Eleve_choix.id }}">
+                                                </td>
+                                        </tr>
+                                    {% endfor %} 
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5"> liste encore libre </td>
+                                    </tr>
+                                {% endif %}
+                                        
+                            </tbody>
+                        </table>
+                        <button type="submit">Passe Niveau</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="graphique" style="width: 100%;height: 65vh;">
+            <h2>Graphique representant le Nombre d'eleve par niveau</h2> 
+            <canvas id="myChart" style="width: 100%;height: auto;display: flex;align-items: center;"></canvas>
+        </div>
+    </section>
+    <script src="{% static "/chart.js-4.5.1/package/dist/chart.umd.js" %}"></script>
+    <script>
+        const config = JSON.parse('{{graphe|escapejs}}');
+        document.addEventListener("DOMContentLoaded", function() {
+            // GESTION SELECT-ALL
+            document.querySelectorAll(".select-all").forEach(selectAll => {
+                selectAll.addEventListener("change", function() {
+                    const level = this.dataset.level;
+                    document.querySelectorAll(".level-" + level).forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                });
+            });
+
+            // Décocher le select all si un élève est décoché
+            document.querySelectorAll(".select-item").forEach(item => {
+                item.addEventListener("change", function() {
+                    const classes = [...this.classList];
+                    const levelClass = classes.find(c => c.startsWith("level-"));
+                    const level = levelClass.split("-")[1];
+
+                    const items = document.querySelectorAll(".level-" + level);
+                    const selectAll = document.querySelector('.select-all[data-level="' + level + '"]');
+
+                    selectAll.checked = [...items].every(cb => cb.checked);
+                });
+            });
+        });
+        new Chart(document.getElementById("myChart"), config);
+    </script>
+</body>
+</html>

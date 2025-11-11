@@ -40,12 +40,14 @@ def Creations_session_emplois(request,jours,heure,cles_unique:str):
     # validator = False if str(jours) in request.session else True
     request.session[str(jours)] = jours_tuple
     return redirect(f'http://127.0.0.1:8000/Emplois_du_temps/{cles_unique}/')
+
 def cryptage_text(text:str)-> str:
     hachage = hashlib.sha384()
 
     hachage.update(text.encode("utf-8"))
 
     return hachage.hexdigest()
+
 def Enregistrement_E_d_T(request):
     count = []
     liste_donnee:List[str] = []

@@ -325,7 +325,7 @@ body {
     <!-- ------------------------
         EMPLOIS DU TEMPS
     ------------------------ -->
-    <section class="Emplois_du_temps" name="Emplois_du_temps">
+    <section class="Emplois_du_temps" id="Emplois_du_temps">
         <h1>Emplois du temps</h1>
         {% if messages %}
             {% for valide in messages %}
@@ -399,7 +399,55 @@ body {
             </a>
         </div>
     </section>
+    <section style="width: 100%;height: 65vh;">
+        <h2 style="text-align: center;">Modules</h2>
+        <div style="display: flex;justify-content: space-around;align-items: center;">
+        {% if Formations %}
+            {% for value in Formations %}
+                <div style="width: 30%;min-height: 80% ;border: 1px solid white;">
+                    <h2 style="text-align: center;color: #ffb347;">{{ value.Nom }}</h2>
+                    <p>Cours {{ value.Type_Formations }}<br>
+                       <strong style="text-decoration-line: underline;"> Droit d'inscription :</strong> <strong style="color: red;">{{ value.Droit }}</strong> Ar
+                        <div style=" display: flex;width: 100%;">
+                            <p style="width: 50%;">
+                                <strong style="margin-left: 25px;">Ecolage:</strong>
+                                <br>
+                                {% with Modules_Niveau=Niveau|get_value:value.id %}
+                                    {% for i,j in Modules_Niveau.items %}
+                                        {{i}}: {{j}} Ar<br>
+                                    {% endfor %} 
+                                {% endwith %}
+                            </p>
+                            <p style="width: 60%;"> 
+                                <strong style="margin-left: 25px;">Horaire:</strong><br>
+                                Lundi au samedi ( <strong style="color: red;">{{ value.cours_semaine }}</strong> fois par semaines )<br>
+                                {% for heure in disponibiliter %}
+                                    {{ heure.Heure }} <br>
+                                {% endfor %}
 
+                            </p>
+                        </div><br>
+                        {% with Nombre_eleve=Nombre|get_value:value.id %}
+                            Nombre d'{% if Nombre_eleve.Nombre < 2 %}eleve
+                            {% else %}eleves{% endif %} actuelle :
+                            <strong style="color: red;">{{Nombre_eleve.Nombre}} </strong> 
+                            {% if Nombre_eleve.Nombre < 2 %}
+                                eleve
+                            {% else %}
+                                eleves
+                            {% endif %}
+                        {% endwith %}
+                        
+                    </p>
+                    <a href="{% url 'Modules_pages' value.id %}"><button> Voir </button></a>
+                </div>
+            {% endfor %} 
+        {% else %}
+        <h2 style="width: 100%;height: 100%;text-align: center;"> Pas encore de donnee pour le moment merci !. Ajouter des Formations pour avoir des Modules </h2>
+        {% endif %}
+        
+        </div>
+    </section>
 </main>
 {% endblock contenue %}
 </body>
